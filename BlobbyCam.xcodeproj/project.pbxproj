@@ -1,0 +1,459 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+			A10000000000000000000001 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* AppDelegate.swift */; };
+			A10000000000000000000002 /* ContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000006 /* ContractTests.swift */; };
+			A10000000000000000000003 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B10000000000000000000008 /* AppKit.framework */; };
+			A10000000000000000000004 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B10000000000000000000009 /* XCTest.framework */; };
+			A10000000000000000000005 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* Assets.xcassets */; };
+			A10000000000000000000006 /* AppKit.framework in Test Frameworks */ = {isa = PBXBuildFile; fileRef = B10000000000000000000008 /* AppKit.framework */; };
+			A10000000000000000000007 /* FeatureID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000010 /* FeatureID.swift */; };
+			A10000000000000000000008 /* FeatureConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000011 /* FeatureConfiguration.swift */; };
+			A10000000000000000000009 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000012 /* AppState.swift */; };
+			A10000000000000000000010 /* CameraFrame.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000013 /* CameraFrame.swift */; };
+			A10000000000000000000011 /* LatestFrameStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000014 /* LatestFrameStore.swift */; };
+			A10000000000000000000012 /* TrackingSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000015 /* TrackingSnapshot.swift */; };
+			A10000000000000000000013 /* WindowLifecycleState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000016 /* WindowLifecycleState.swift */; };
+			A10000000000000000000014 /* CameraPermission.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000018 /* CameraPermission.swift */; };
+			A10000000000000000000015 /* CameraPermissionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000019 /* CameraPermissionTests.swift */; };
+			A10000000000000000000016 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B10000000000000000000017 /* AVFoundation.framework */; };
+			A10000000000000000000017 /* AVFoundation.framework in Test Frameworks */ = {isa = PBXBuildFile; fileRef = B10000000000000000000017 /* AVFoundation.framework */; };
+			A10000000000000000000018 /* CameraCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000020 /* CameraCapture.swift */; };
+			A10000000000000000000019 /* CameraCaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000021 /* CameraCaptureTests.swift */; };
+			A1000000000000000000001A /* LatestFrameStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000022 /* LatestFrameStoreTests.swift */; };
+			A1000000000000000000001B /* FaceRegionExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000024 /* FaceRegionExtractor.swift */; };
+			A1000000000000000000001C /* FaceRegionExtractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000025 /* FaceRegionExtractorTests.swift */; };
+			A1000000000000000000001D /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B10000000000000000000023 /* Vision.framework */; };
+			A1000000000000000000001E /* Vision.framework in Test Frameworks */ = {isa = PBXBuildFile; fileRef = B10000000000000000000023 /* Vision.framework */; };
+			A1000000000000000000001F /* HandRegionExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000026 /* HandRegionExtractor.swift */; };
+			A10000000000000000000020 /* HandRegionExtractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000027 /* HandRegionExtractorTests.swift */; };
+			A10000000000000000000021 /* VisionTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000028 /* VisionTracker.swift */; };
+			A10000000000000000000022 /* VisionTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000029 /* VisionTrackerTests.swift */; };
+			A10000000000000000000023 /* FeatureGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000002A /* FeatureGeometry.swift */; };
+			A10000000000000000000024 /* FeatureGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000002B /* FeatureGeometryTests.swift */; };
+			A10000000000000000000025 /* TrackingSmoother.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000002C /* TrackingSmoother.swift */; };
+			A10000000000000000000026 /* TrackingSmootherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000002D /* TrackingSmootherTests.swift */; };
+			A10000000000000000000027 /* FeaturePanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000030 /* FeaturePanel.swift */; };
+			A10000000000000000000028 /* FeatureWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000031 /* FeatureWindowManager.swift */; };
+			A10000000000000000000029 /* FeatureWindowManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000032 /* FeatureWindowManagerTests.swift */; };
+			A1000000000000000000002A /* ScreenMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000033 /* ScreenMapper.swift */; };
+			A1000000000000000000002B /* ScreenMapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000034 /* ScreenMapperTests.swift */; };
+			A1000000000000000000002C /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B10000000000000000000035 /* CoreImage.framework */; };
+			A1000000000000000000002D /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B10000000000000000000036 /* Metal.framework */; };
+			A1000000000000000000002E /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B10000000000000000000037 /* MetalKit.framework */; };
+			A1000000000000000000002F /* CoreImage.framework in Test Frameworks */ = {isa = PBXBuildFile; fileRef = B10000000000000000000035 /* CoreImage.framework */; };
+			A10000000000000000000030 /* Metal.framework in Test Frameworks */ = {isa = PBXBuildFile; fileRef = B10000000000000000000036 /* Metal.framework */; };
+			A10000000000000000000031 /* MetalKit.framework in Test Frameworks */ = {isa = PBXBuildFile; fileRef = B10000000000000000000037 /* MetalKit.framework */; };
+			A10000000000000000000032 /* SharedRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000038 /* SharedRenderer.swift */; };
+			A10000000000000000000033 /* CoreImageCropRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000039 /* CoreImageCropRenderer.swift */; };
+			A10000000000000000000034 /* FeatureRenderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000003A /* FeatureRenderView.swift */; };
+			A10000000000000000000035 /* RendererGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000003B /* RendererGeometryTests.swift */; };
+			A10000000000000000000036 /* IntegrationStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000003C /* IntegrationStateTests.swift */; };
+			A10000000000000000000037 /* BlobbyTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000003D /* BlobbyTheme.swift */; };
+			A10000000000000000000038 /* BlobbyMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000003E /* BlobbyMenuView.swift */; };
+			A10000000000000000000039 /* FeatureControlRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000003F /* FeatureControlRow.swift */; };
+			A1000000000000000000003A /* TerminalMenuModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000040 /* TerminalMenuModel.swift */; };
+			A1000000000000000000003B /* TerminalMenuRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000041 /* TerminalMenuRenderer.swift */; };
+			A1000000000000000000003C /* TerminalMenuTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000042 /* TerminalMenuTests.swift */; };
+			A1000000000000000000003D /* TerminalKeyParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000043 /* TerminalKeyParser.swift */; };
+			A1000000000000000000003E /* TerminalSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000044 /* TerminalSession.swift */; };
+			A1000000000000000000003F /* TerminalKeyParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000045 /* TerminalKeyParserTests.swift */; };
+			A10000000000000000000040 /* TerminalMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000046 /* TerminalMenuController.swift */; };
+			A10000000000000000000041 /* ControlIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000047 /* ControlIntegrationTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+			C10000000000000000000001 /* PBXContainerItemProxy */ = {
+				isa = PBXContainerItemProxy;
+				containerPortal = D10000000000000000000001 /* Project object */;
+				proxyType = 1;
+				remoteGlobalIDString = E10000000000000000000002;
+				remoteInfo = BlobbyCam;
+			};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+			B10000000000000000000001 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+			B10000000000000000000002 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+			B10000000000000000000003 /* BlobbyCam.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BlobbyCam.entitlements; sourceTree = "<group>"; };
+			B10000000000000000000004 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+			B10000000000000000000005 /* BlobbyCam.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlobbyCam.app; sourceTree = BUILT_PRODUCTS_DIR; };
+			B10000000000000000000006 /* ContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContractTests.swift; sourceTree = "<group>"; };
+			B10000000000000000000007 /* BlobbyCamTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BlobbyCamTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+			B10000000000000000000008 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+			B10000000000000000000009 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+			B10000000000000000000010 /* FeatureID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureID.swift; sourceTree = "<group>"; };
+			B10000000000000000000011 /* FeatureConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureConfiguration.swift; sourceTree = "<group>"; };
+			B10000000000000000000012 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+			B10000000000000000000013 /* CameraFrame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraFrame.swift; sourceTree = "<group>"; };
+			B10000000000000000000014 /* LatestFrameStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LatestFrameStore.swift; sourceTree = "<group>"; };
+			B10000000000000000000015 /* TrackingSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackingSnapshot.swift; sourceTree = "<group>"; };
+			B10000000000000000000016 /* WindowLifecycleState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowLifecycleState.swift; sourceTree = "<group>"; };
+			B10000000000000000000017 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+			B10000000000000000000018 /* CameraPermission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPermission.swift; sourceTree = "<group>"; };
+			B10000000000000000000019 /* CameraPermissionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPermissionTests.swift; sourceTree = "<group>"; };
+			B10000000000000000000020 /* CameraCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCapture.swift; sourceTree = "<group>"; };
+			B10000000000000000000021 /* CameraCaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureTests.swift; sourceTree = "<group>"; };
+			B10000000000000000000022 /* LatestFrameStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LatestFrameStoreTests.swift; sourceTree = "<group>"; };
+			B10000000000000000000023 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
+			B10000000000000000000024 /* FaceRegionExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceRegionExtractor.swift; sourceTree = "<group>"; };
+			B10000000000000000000025 /* FaceRegionExtractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceRegionExtractorTests.swift; sourceTree = "<group>"; };
+			B10000000000000000000026 /* HandRegionExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandRegionExtractor.swift; sourceTree = "<group>"; };
+			B10000000000000000000027 /* HandRegionExtractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandRegionExtractorTests.swift; sourceTree = "<group>"; };
+			B10000000000000000000028 /* VisionTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionTracker.swift; sourceTree = "<group>"; };
+			B10000000000000000000029 /* VisionTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionTrackerTests.swift; sourceTree = "<group>"; };
+			B1000000000000000000002A /* FeatureGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureGeometry.swift; sourceTree = "<group>"; };
+			B1000000000000000000002B /* FeatureGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureGeometryTests.swift; sourceTree = "<group>"; };
+			B1000000000000000000002C /* TrackingSmoother.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackingSmoother.swift; sourceTree = "<group>"; };
+			B1000000000000000000002D /* TrackingSmootherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackingSmootherTests.swift; sourceTree = "<group>"; };
+			B10000000000000000000030 /* FeaturePanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturePanel.swift; sourceTree = "<group>"; };
+			B10000000000000000000031 /* FeatureWindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureWindowManager.swift; sourceTree = "<group>"; };
+			B10000000000000000000032 /* FeatureWindowManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureWindowManagerTests.swift; sourceTree = "<group>"; };
+			B10000000000000000000033 /* ScreenMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenMapper.swift; sourceTree = "<group>"; };
+			B10000000000000000000034 /* ScreenMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenMapperTests.swift; sourceTree = "<group>"; };
+			B10000000000000000000035 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+			B10000000000000000000036 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+			B10000000000000000000037 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+			B10000000000000000000038 /* SharedRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedRenderer.swift; sourceTree = "<group>"; };
+			B10000000000000000000039 /* CoreImageCropRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreImageCropRenderer.swift; sourceTree = "<group>"; };
+			B1000000000000000000003A /* FeatureRenderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRenderView.swift; sourceTree = "<group>"; };
+			B1000000000000000000003B /* RendererGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RendererGeometryTests.swift; sourceTree = "<group>"; };
+			B1000000000000000000003C /* IntegrationStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationStateTests.swift; sourceTree = "<group>"; };
+			B1000000000000000000003D /* BlobbyTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlobbyTheme.swift; sourceTree = "<group>"; };
+			B1000000000000000000003E /* BlobbyMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlobbyMenuView.swift; sourceTree = "<group>"; };
+			B1000000000000000000003F /* FeatureControlRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureControlRow.swift; sourceTree = "<group>"; };
+			B10000000000000000000040 /* TerminalMenuModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalMenuModel.swift; sourceTree = "<group>"; };
+			B10000000000000000000041 /* TerminalMenuRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalMenuRenderer.swift; sourceTree = "<group>"; };
+			B10000000000000000000042 /* TerminalMenuTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalMenuTests.swift; sourceTree = "<group>"; };
+			B10000000000000000000043 /* TerminalKeyParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalKeyParser.swift; sourceTree = "<group>"; };
+			B10000000000000000000044 /* TerminalSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalSession.swift; sourceTree = "<group>"; };
+			B10000000000000000000045 /* TerminalKeyParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalKeyParserTests.swift; sourceTree = "<group>"; };
+			B10000000000000000000046 /* TerminalMenuController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalMenuController.swift; sourceTree = "<group>"; };
+			B10000000000000000000047 /* ControlIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlIntegrationTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+			F10000000000000000000001 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000003 /* AppKit.framework in Frameworks */, A10000000000000000000016 /* AVFoundation.framework in Frameworks */, A1000000000000000000001D /* Vision.framework in Frameworks */, A1000000000000000000002C /* CoreImage.framework in Frameworks */, A1000000000000000000002D /* Metal.framework in Frameworks */, A1000000000000000000002E /* MetalKit.framework in Frameworks */, ); runOnlyForDeploymentPostprocessing = 0; };
+			F10000000000000000000002 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000004 /* XCTest.framework in Frameworks */, A10000000000000000000006 /* AppKit.framework in Test Frameworks */, A10000000000000000000017 /* AVFoundation.framework in Test Frameworks */, A1000000000000000000001E /* Vision.framework in Test Frameworks */, A1000000000000000000002F /* CoreImage.framework in Test Frameworks */, A10000000000000000000030 /* Metal.framework in Test Frameworks */, A10000000000000000000031 /* MetalKit.framework in Test Frameworks */, ); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+			G10000000000000000000001 = {
+				isa = PBXGroup;
+				children = (
+					G10000000000000000000002 /* BlobbyCam */,
+					G10000000000000000000003 /* BlobbyCamTests */,
+					G10000000000000000000004 /* Products */,
+				);
+				sourceTree = "<group>";
+			};
+			G10000000000000000000002 /* BlobbyCam */ = {
+				isa = PBXGroup;
+				path = BlobbyCam;
+				sourceTree = "<group>";
+				children = (
+					G10000000000000000000005 /* App */,
+					G10000000000000000000007 /* Camera */,
+					G10000000000000000000008 /* Vision */,
+					G10000000000000000000009 /* Windows */,
+					G10000000000000000000010 /* Rendering */,
+					G10000000000000000000011 /* Menu */,
+					G10000000000000000000012 /* Terminal */,
+					G10000000000000000000006 /* Resources */,
+				);
+			};
+			G10000000000000000000003 /* BlobbyCamTests */ = {
+				isa = PBXGroup;
+				path = BlobbyCamTests;
+				sourceTree = "<group>";
+				children = (
+					B10000000000000000000006 /* ContractTests.swift */,
+					B10000000000000000000019 /* CameraPermissionTests.swift */,
+					B10000000000000000000021 /* CameraCaptureTests.swift */,
+					B10000000000000000000022 /* LatestFrameStoreTests.swift */,
+					B10000000000000000000025 /* FaceRegionExtractorTests.swift */,
+					B10000000000000000000027 /* HandRegionExtractorTests.swift */,
+					B10000000000000000000029 /* VisionTrackerTests.swift */,
+					B1000000000000000000002B /* FeatureGeometryTests.swift */,
+					B1000000000000000000002D /* TrackingSmootherTests.swift */,
+					B10000000000000000000032 /* FeatureWindowManagerTests.swift */,
+					B10000000000000000000034 /* ScreenMapperTests.swift */,
+					B1000000000000000000003B /* RendererGeometryTests.swift */,
+					B1000000000000000000003C /* IntegrationStateTests.swift */,
+					B10000000000000000000042 /* TerminalMenuTests.swift */,
+					B10000000000000000000045 /* TerminalKeyParserTests.swift */,
+					B10000000000000000000047 /* ControlIntegrationTests.swift */,
+				);
+			};
+			G10000000000000000000004 /* Products */ = {
+				isa = PBXGroup;
+				name = Products;
+				sourceTree = "<group>";
+				children = (
+					B10000000000000000000005 /* BlobbyCam.app */,
+					B10000000000000000000007 /* BlobbyCamTests.xctest */,
+				);
+			};
+			G10000000000000000000005 /* App */ = {
+				isa = PBXGroup;
+				path = App;
+				sourceTree = "<group>";
+				children = (
+					B10000000000000000000010 /* FeatureID.swift */,
+					B10000000000000000000011 /* FeatureConfiguration.swift */,
+					B10000000000000000000001 /* AppDelegate.swift */,
+					B10000000000000000000012 /* AppState.swift */,
+				);
+			};
+			G10000000000000000000006 /* Resources */ = {
+				isa = PBXGroup;
+				path = Resources;
+				sourceTree = "<group>";
+				children = (
+					B10000000000000000000002 /* Info.plist */,
+					B10000000000000000000003 /* BlobbyCam.entitlements */,
+					B10000000000000000000004 /* Assets.xcassets */,
+				);
+			};
+			G10000000000000000000007 /* Camera */ = {
+				isa = PBXGroup;
+				path = Camera;
+				sourceTree = "<group>";
+				children = (
+					B10000000000000000000013 /* CameraFrame.swift */,
+					B10000000000000000000014 /* LatestFrameStore.swift */,
+					B10000000000000000000018 /* CameraPermission.swift */,
+					B10000000000000000000020 /* CameraCapture.swift */,
+				);
+			};
+			G10000000000000000000008 /* Vision */ = {
+				isa = PBXGroup;
+				path = Vision;
+				sourceTree = "<group>";
+				children = (
+					B10000000000000000000015 /* TrackingSnapshot.swift */,
+					B10000000000000000000016 /* WindowLifecycleState.swift */,
+					B10000000000000000000024 /* FaceRegionExtractor.swift */,
+					B10000000000000000000026 /* HandRegionExtractor.swift */,
+					B10000000000000000000028 /* VisionTracker.swift */,
+					B1000000000000000000002A /* FeatureGeometry.swift */,
+					B1000000000000000000002C /* TrackingSmoother.swift */,
+				);
+			};
+			G10000000000000000000009 /* Windows */ = {
+				isa = PBXGroup;
+				path = Windows;
+				sourceTree = "<group>";
+				children = (
+					B10000000000000000000030 /* FeaturePanel.swift */,
+					B10000000000000000000031 /* FeatureWindowManager.swift */,
+					B10000000000000000000033 /* ScreenMapper.swift */,
+					B1000000000000000000003A /* FeatureRenderView.swift */,
+				);
+			};
+			G10000000000000000000010 /* Rendering */ = {
+				isa = PBXGroup;
+				path = Rendering;
+				sourceTree = "<group>";
+				children = (
+					B10000000000000000000038 /* SharedRenderer.swift */,
+					B10000000000000000000039 /* CoreImageCropRenderer.swift */,
+				);
+			};
+			G10000000000000000000011 /* Menu */ = {
+				isa = PBXGroup;
+				path = Menu;
+				sourceTree = "<group>";
+				children = (
+					B1000000000000000000003D /* BlobbyTheme.swift */,
+					B1000000000000000000003E /* BlobbyMenuView.swift */,
+					B1000000000000000000003F /* FeatureControlRow.swift */,
+				);
+			};
+			G10000000000000000000012 /* Terminal */ = {
+				isa = PBXGroup;
+				path = Terminal;
+				sourceTree = "<group>";
+				children = (
+					B10000000000000000000040 /* TerminalMenuModel.swift */,
+					B10000000000000000000041 /* TerminalMenuRenderer.swift */,
+					B10000000000000000000043 /* TerminalKeyParser.swift */,
+					B10000000000000000000044 /* TerminalSession.swift */,
+					B10000000000000000000046 /* TerminalMenuController.swift */,
+				);
+			};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+			E10000000000000000000001 /* BlobbyCamTests */ = {
+				isa = PBXNativeTarget;
+				buildConfigurationList = H10000000000000000000002 /* Build configuration list for PBXNativeTarget "BlobbyCamTests" */;
+				buildPhases = (F10000000000000000000002 /* Frameworks */, F10000000000000000000004 /* Sources */, F10000000000000000000006 /* Resources */, );
+				buildRules = ();
+				dependencies = (I10000000000000000000001 /* PBXTargetDependency */, );
+				name = BlobbyCamTests;
+				productName = BlobbyCamTests;
+				productReference = B10000000000000000000007 /* BlobbyCamTests.xctest */;
+				productType = "com.apple.product-type.bundle.unit-test";
+			};
+			E10000000000000000000002 /* BlobbyCam */ = {
+				isa = PBXNativeTarget;
+				buildConfigurationList = H10000000000000000000001 /* Build configuration list for PBXNativeTarget "BlobbyCam" */;
+				buildPhases = (F10000000000000000000001 /* Frameworks */, F10000000000000000000003 /* Sources */, F10000000000000000000005 /* Resources */, );
+				buildRules = ();
+				dependencies = ();
+				name = BlobbyCam;
+				productName = BlobbyCam;
+				productReference = B10000000000000000000005 /* BlobbyCam.app */;
+				productType = "com.apple.product-type.application";
+			};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+			D10000000000000000000001 /* Project object */ = {
+				isa = PBXProject;
+				attributes = {
+					BuildIndependentTargetsInParallel = 1;
+					LastSwiftUpdateCheck = 1600;
+					LastUpgradeCheck = 1600;
+					TargetAttributes = {
+						E10000000000000000000001 = {CreatedOnToolsVersion = 16.0; TestTargetID = E10000000000000000000002; };
+						E10000000000000000000002 = {CreatedOnToolsVersion = 16.0; };
+					};
+				};
+				buildConfigurationList = H10000000000000000000003 /* Build configuration list for PBXProject "BlobbyCam" */;
+				compatibilityVersion = "Xcode 15.0";
+				developmentRegion = en;
+				hasScannedForEncodings = 0;
+				knownRegions = (en, Base, );
+				mainGroup = G10000000000000000000001;
+				productRefGroup = G10000000000000000000004 /* Products */;
+				projectDirPath = "";
+				projectRoot = "";
+				targets = (E10000000000000000000002 /* BlobbyCam */, E10000000000000000000001 /* BlobbyCamTests */, );
+			};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+			F10000000000000000000005 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000005 /* Assets.xcassets in Resources */, ); runOnlyForDeploymentPostprocessing = 0; };
+			F10000000000000000000006 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+			F10000000000000000000003 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+				A10000000000000000000001 /* AppDelegate.swift in Sources */,
+				A10000000000000000000007 /* FeatureID.swift in Sources */,
+				A10000000000000000000008 /* FeatureConfiguration.swift in Sources */,
+				A10000000000000000000009 /* AppState.swift in Sources */,
+				A10000000000000000000010 /* CameraFrame.swift in Sources */,
+				A10000000000000000000011 /* LatestFrameStore.swift in Sources */,
+				A10000000000000000000012 /* TrackingSnapshot.swift in Sources */,
+				A10000000000000000000013 /* WindowLifecycleState.swift in Sources */,
+				A10000000000000000000014 /* CameraPermission.swift in Sources */,
+				A10000000000000000000018 /* CameraCapture.swift in Sources */,
+				A1000000000000000000001B /* FaceRegionExtractor.swift in Sources */,
+				A1000000000000000000001F /* HandRegionExtractor.swift in Sources */,
+				A10000000000000000000021 /* VisionTracker.swift in Sources */,
+				A10000000000000000000023 /* FeatureGeometry.swift in Sources */,
+				A10000000000000000000025 /* TrackingSmoother.swift in Sources */,
+				A10000000000000000000027 /* FeaturePanel.swift in Sources */,
+				A10000000000000000000028 /* FeatureWindowManager.swift in Sources */,
+				A1000000000000000000002A /* ScreenMapper.swift in Sources */,
+				A10000000000000000000032 /* SharedRenderer.swift in Sources */,
+				A10000000000000000000033 /* CoreImageCropRenderer.swift in Sources */,
+				A10000000000000000000034 /* FeatureRenderView.swift in Sources */,
+				A10000000000000000000037 /* BlobbyTheme.swift in Sources */,
+				A10000000000000000000038 /* BlobbyMenuView.swift in Sources */,
+				A10000000000000000000039 /* FeatureControlRow.swift in Sources */,
+				A1000000000000000000003A /* TerminalMenuModel.swift in Sources */,
+				A1000000000000000000003B /* TerminalMenuRenderer.swift in Sources */,
+				A1000000000000000000003D /* TerminalKeyParser.swift in Sources */,
+				A1000000000000000000003E /* TerminalSession.swift in Sources */,
+				A10000000000000000000040 /* TerminalMenuController.swift in Sources */,
+			); runOnlyForDeploymentPostprocessing = 0; };
+			F10000000000000000000004 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000002 /* ContractTests.swift in Sources */, A10000000000000000000015 /* CameraPermissionTests.swift in Sources */, A10000000000000000000019 /* CameraCaptureTests.swift in Sources */, A1000000000000000000001A /* LatestFrameStoreTests.swift in Sources */, A1000000000000000000001C /* FaceRegionExtractorTests.swift in Sources */, A10000000000000000000020 /* HandRegionExtractorTests.swift in Sources */, A10000000000000000000022 /* VisionTrackerTests.swift in Sources */, A10000000000000000000024 /* FeatureGeometryTests.swift in Sources */, A10000000000000000000026 /* TrackingSmootherTests.swift in Sources */, A10000000000000000000029 /* FeatureWindowManagerTests.swift in Sources */, A1000000000000000000002B /* ScreenMapperTests.swift in Sources */, A10000000000000000000035 /* RendererGeometryTests.swift in Sources */, A10000000000000000000036 /* IntegrationStateTests.swift in Sources */, A1000000000000000000003C /* TerminalMenuTests.swift in Sources */, A1000000000000000000003F /* TerminalKeyParserTests.swift in Sources */, A10000000000000000000041 /* ControlIntegrationTests.swift in Sources */, ); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+			I10000000000000000000001 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = E10000000000000000000002 /* BlobbyCam */; targetProxy = C10000000000000000000001 /* PBXContainerItemProxy */; };
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+			J10000000000000000000001 /* Debug app */ = {isa = XCBuildConfiguration; buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = BlobbyCam/Resources/BlobbyCam.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = BlobbyCam/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.blobbycam.BlobbyCam;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			}; name = Debug; };
+			J10000000000000000000002 /* Release app */ = {isa = XCBuildConfiguration; buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = BlobbyCam/Resources/BlobbyCam.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = BlobbyCam/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.blobbycam.BlobbyCam;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			}; name = Release; };
+			J10000000000000000000003 /* Debug tests */ = {isa = XCBuildConfiguration; buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.blobbycam.BlobbyCamTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BlobbyCam.app/Contents/MacOS/BlobbyCam";
+			}; name = Debug; };
+			J10000000000000000000004 /* Release tests */ = {isa = XCBuildConfiguration; buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.blobbycam.BlobbyCamTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BlobbyCam.app/Contents/MacOS/BlobbyCam";
+			}; name = Release; };
+			J10000000000000000000005 /* Project Debug */ = {isa = XCBuildConfiguration; buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			}; name = Debug; };
+			J10000000000000000000006 /* Project Release */ = {isa = XCBuildConfiguration; buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			}; name = Release; };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+			H10000000000000000000001 /* Build configuration list for PBXNativeTarget "BlobbyCam" */ = {isa = XCConfigurationList; buildConfigurations = (J10000000000000000000001 /* Debug app */, J10000000000000000000002 /* Release app */, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+			H10000000000000000000002 /* Build configuration list for PBXNativeTarget "BlobbyCamTests" */ = {isa = XCConfigurationList; buildConfigurations = (J10000000000000000000003 /* Debug tests */, J10000000000000000000004 /* Release tests */, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+			H10000000000000000000003 /* Build configuration list for PBXProject "BlobbyCam" */ = {isa = XCConfigurationList; buildConfigurations = (J10000000000000000000005 /* Project Debug */, J10000000000000000000006 /* Project Release */, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+	};
+	rootObject = D10000000000000000000001 /* Project object */;
+}

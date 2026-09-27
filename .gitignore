@@ -1,0 +1,24 @@
+# Xcode and Swift build output
+.build/
+DerivedData/
+build/
+dist/
+*.xcresult
+*.xcarchive
+*.app
+.swiftpm/
+
+# Local Xcode and macOS state
+*.xcuserstate
+*.xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+.DS_Store
+
+# Local diagnostics and credentials
+*.log
+*.p12
+*.p8
+*.mobileprovision
+.env
+.env.*

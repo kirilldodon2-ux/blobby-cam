@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+
+project_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+app_executable="$project_dir/.build/DerivedData/Build/Products/Debug/BlobbyCam.app/Contents/MacOS/BlobbyCam"
+build_arch=$(uname -m)
+
+DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}" \
+	xcodebuild -quiet \
+		-project "$project_dir/BlobbyCam.xcodeproj" \
+		-scheme BlobbyCam \
+		-configuration Debug \
+		-destination "platform=macOS,arch=$build_arch" \
+		-derivedDataPath "$project_dir/.build/DerivedData" \
+		build
+
+exec "$app_executable" "$@"
