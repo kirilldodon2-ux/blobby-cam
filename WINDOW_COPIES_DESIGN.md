@@ -1,6 +1,6 @@
 # Feature window copies — implementation design
 
-Status: design for the next feature. Do not treat this file as evidence that copies are implemented.
+Status: implemented in the `dodon/window-copies` branch; automated tests pass. Live camera and extended performance checks for 20 copies are still pending.
 
 ## User-visible behavior
 
@@ -11,6 +11,7 @@ Status: design for the next feature. Do not treat this file as evidence that cop
 - Closing one copy with its red button removes that exact copy and updates `WINDOWS` in both UIs. Closing the last copy switches the feature OFF while retaining its panel for re-enabling.
 - Reducing the count through a menu removes the most recently added copy first. Increasing it again creates a fresh copy without moving the survivors.
 - Window titles use current ordinal labels for clarity; stable internal IDs do not depend on those labels.
+- Retired extra `NSPanel` objects are hidden in a bounded per-feature reuse pool. Reuse assigns a new stable ID and render view without replacing any surviving panel; the six original panels stay allocated.
 
 ## Ownership and data flow
 
@@ -41,4 +42,4 @@ Status: design for the next feature. Do not treat this file as evidence that cop
 
 ## Open questions
 
-- `OPEN_QUESTION`: first-version maximum number of copies per feature. The user's example needs at least 5; 8 is a practical initial bound until multiwindow performance is measured.
+- The first version allows 1–32 copies per feature. The user's 20-mouth example must work; performance at that count still needs a live check before public release.

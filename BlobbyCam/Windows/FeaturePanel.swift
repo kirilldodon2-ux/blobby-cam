@@ -2,13 +2,18 @@ import AppKit
 
 @MainActor
 final class FeaturePanel: NSPanel, NSWindowDelegate {
-    let featureID: FeatureID
+    private(set) var windowID: WindowInstanceID
+    var featureID: FeatureID { windowID.featureID }
     private(set) var isUserResizing = false
-    var onUserResize: ((FeatureID, NSSize) -> Void)?
-    var onUserClose: ((FeatureID) -> Void)?
+    var onUserResize: ((WindowInstanceID, NSSize) -> Void)?
+    var onUserClose: ((WindowInstanceID) -> Void)?
 
-    init(featureID: FeatureID, frame: NSRect) {
-        self.featureID = featureID
+    convenience init(featureID: FeatureID, frame: NSRect) {
+        self.init(windowID: WindowInstanceID(featureID: featureID, serial: 1), frame: frame)
+    }
+
+    init(windowID: WindowInstanceID, frame: NSRect) {
+        self.windowID = windowID
         super.init(
             contentRect: frame,
             styleMask: [.titled, .closable, .miniaturizable, .resizable, .nonactivatingPanel],
@@ -16,7 +21,7 @@ final class FeaturePanel: NSPanel, NSWindowDelegate {
             defer: false
         )
 
-        title = featureID.windowTitle
+        title = windowID.featureID.windowTitle
         appearance = NSAppearance(named: .darkAqua)
         titleVisibility = .visible
         titlebarAppearsTransparent = false
@@ -46,6 +51,16 @@ final class FeaturePanel: NSPanel, NSWindowDelegate {
         contentView = view
     }
 
+    func prepareForReuse(as windowID: WindowInstanceID) {
+        precondition(windowID.featureID == self.windowID.featureID)
+        self.windowID = windowID
+        let contentSize = contentView?.frame.size ?? frame.size
+        let placeholder = TransparentPanelContentView(frame: NSRect(origin: .zero, size: contentSize))
+        placeholder.autoresizingMask = [.width, .height]
+        contentView = placeholder
+        delegate = self
+    }
+
     func windowWillStartLiveResize(_ notification: Notification) {
         isUserResizing = true
     }
@@ -53,13 +68,13 @@ final class FeaturePanel: NSPanel, NSWindowDelegate {
     func windowDidEndLiveResize(_ notification: Notification) {
         isUserResizing = false
         if let size = contentView?.frame.size {
-            onUserResize?(featureID, size)
+            onUserResize?(windowID, size)
         }
     }
 
     func windowShouldClose(_ sender: NSWindow) -> Bool {
-        // The red control changes feature state; the persistent native panel is reused on ON.
-        onUserClose?(featureID)
+        // AppState removes this exact ID, or turns off the final retained instance.
+        onUserClose?(windowID)
         orderOut(nil)
         return false
     }

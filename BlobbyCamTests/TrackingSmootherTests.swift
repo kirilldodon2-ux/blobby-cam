@@ -186,6 +186,30 @@ final class TrackingSmootherTests: XCTestCase {
         XCTAssertEqual(resetState[.rightEye]?.detection?.timestamp, time(10))
     }
 
+    func testCopiesUseTheirOwnDetectionThresholdsForOneSharedDetection() throws {
+        var smoother = TrackingSmoother()
+        let first = WindowInstanceID(featureID: .mouth, serial: 1)
+        let second = WindowInstanceID(featureID: .mouth, serial: 2)
+        var highThreshold = FeatureConfiguration.default
+        highThreshold.detectionThreshold = 0.9
+        var lowThreshold = FeatureConfiguration.default
+        lowThreshold.detectionThreshold = 0.5
+
+        let states = smoother.process(
+            snapshot(milliseconds: 0, detections: [
+                .mouth: detection(.mouth, rect: rect(0.2), confidence: 0.7, time: 0)
+            ]),
+            configurations: [first: highThreshold, second: lowThreshold]
+        )
+
+        assertHidden(states[first])
+        let visibleCopy = try XCTUnwrap(states[second])
+        if case .visible = visibleCopy.lifecycle {} else {
+            XCTFail("The copy below its own threshold should be visible")
+        }
+        XCTAssertEqual(visibleCopy.detection?.confidence, 0.7)
+    }
+
     private func defaultConfigurations() -> [FeatureID: FeatureConfiguration] {
         Dictionary(uniqueKeysWithValues: FeatureID.allCases.map { ($0, FeatureConfiguration.default) })
     }

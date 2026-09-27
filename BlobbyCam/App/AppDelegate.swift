@@ -75,11 +75,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
         logEvent("Blobby Cam lifecycle: applicationDidFinishLaunching, activationPolicy=\(NSApp.activationPolicy().rawValue), appActive=\(NSApp.isActive), frontmost=\(NSWorkspace.shared.frontmostApplication?.bundleIdentifier ?? "unknown")")
         NSApp.setActivationPolicy(terminalMode ? .accessory : .regular)
-        windowManager.onUserResize = { [weak self] featureID, size in
-            self?.appState.setWindowSize(size, for: featureID)
+        windowManager.onUserResize = { [weak self] windowID, size in
+            self?.appState.setWindowSize(size, for: windowID)
         }
-        windowManager.onUserClose = { [weak self] featureID in
-            self?.appState.setFeatureEnabled(false, for: featureID)
+        windowManager.onUserClose = { [weak self] windowID in
+            guard let self else { return }
+            self.appState.closeWindowInstance(windowID)
         }
         configureTracking()
         if Self.shouldStartLive(
@@ -148,7 +149,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             onToggleGoofyUI: { [weak self] in self?.toggleGoofyUI() },
             onResetFeatureSize: { [weak self] featureID in
                 guard let self else { return }
-                self.windowManager.resize(featureID, to: FeatureWindowManager.defaultPanelSize)
+                guard let firstID = self.appState.windowIDs(for: featureID).first else { return }
+                self.windowManager.resize(firstID, to: FeatureWindowManager.defaultPanelSize)
             },
             onQuit: { NSApp.terminate(nil) },
             onSessionFailure: { [weak self] error in self?.handleTerminalFailure(error) }
@@ -267,7 +269,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                         self.cameraCapture?.stop()
                         self.latestDelivery = nil
                         self.windowManager.pausePresentation(
-                            configurations: self.appState.features,
+                            configurations: self.appState.configurationsByWindowID,
                             showAll: self.appState.showAll
                         )
                     }
@@ -297,6 +299,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             .sink { [weak self] _ in Task { @MainActor [weak self] in self?.applyLatestDelivery() } }
             .store(in: &subscriptions)
         appState.$features
+            .dropFirst()
+            .sink { [weak self] _ in Task { @MainActor [weak self] in self?.applyLatestDelivery() } }
+            .store(in: &subscriptions)
+        appState.$windowIDsByFeature
+            .dropFirst()
+            .sink { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    self.windowManager.reconcileWindowIDs(self.appState.windowIDsByFeature)
+                    self.applyLatestDelivery()
+                }
+            }
+            .store(in: &subscriptions)
+        appState.$configurationsByWindowID
             .dropFirst()
             .sink { [weak self] _ in Task { @MainActor [weak self] in self?.applyLatestDelivery() } }
             .store(in: &subscriptions)
@@ -365,13 +381,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     private func applyLatestDelivery() {
         guard appState.isLive, let delivery = latestDelivery else {
-            windowManager.pausePresentation(configurations: appState.features, showAll: appState.showAll)
+            windowManager.pausePresentation(configurations: appState.configurationsByWindowID, showAll: appState.showAll)
             return
         }
         windowManager.apply(
             snapshot: delivery.snapshot,
             frame: delivery.frame,
-            configurations: appState.features,
+            windowIDsByFeature: appState.windowIDsByFeature,
+            configurations: appState.configurationsByWindowID,
             isLive: appState.isLive,
             showAll: appState.showAll,
             follow: appState.follow,
@@ -387,7 +404,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         appState.setLive(false)
         cameraCapture?.stop()
         latestDelivery = nil
-        windowManager.pausePresentation(configurations: appState.features, showAll: appState.showAll)
+        windowManager.pausePresentation(configurations: appState.configurationsByWindowID, showAll: appState.showAll)
     }
 
     private func screenGeometries() -> [ScreenGeometry] {

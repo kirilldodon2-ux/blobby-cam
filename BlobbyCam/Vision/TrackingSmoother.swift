@@ -24,7 +24,7 @@ struct TrackingSmoother {
         var fadeOpacity: CGFloat
     }
 
-    private var tracks: [FeatureID: FeatureTrack] = [:]
+    private var tracks: [WindowInstanceID: FeatureTrack] = [:]
     private var lastSnapshotTimestamp: CMTime?
 
     /// Processes only newer source timestamps. Missing features hold their last valid geometry
@@ -34,34 +34,58 @@ struct TrackingSmoother {
         configurations: [FeatureID: FeatureConfiguration],
         smoothing: CGFloat = defaultSmoothing
     ) -> [FeatureID: SmoothedFeatureState] {
-        for id in FeatureID.allCases where configurations[id]?.isEnabled != true {
+        let instanceConfigurations = Dictionary(uniqueKeysWithValues: configurations.map { featureID, configuration in
+            (WindowInstanceID(featureID: featureID, serial: 1), configuration)
+        })
+        let instanceStates = process(
+            snapshot,
+            configurations: instanceConfigurations,
+            smoothing: smoothing
+        )
+        return Dictionary(uniqueKeysWithValues: FeatureID.allCases.map { featureID in
+            let id = WindowInstanceID(featureID: featureID, serial: 1)
+            return (featureID, instanceStates[id] ?? Self.hiddenState)
+        })
+    }
+
+    /// Gives each window its own confidence lifecycle while reusing the same Vision detection.
+    /// Copies can therefore use different show thresholds without creating another Vision pass.
+    mutating func process(
+        _ snapshot: TrackingSnapshot,
+        configurations: [WindowInstanceID: FeatureConfiguration],
+        smoothing: CGFloat = defaultSmoothing
+    ) -> [WindowInstanceID: SmoothedFeatureState] {
+        for (id, configuration) in configurations where !configuration.isEnabled {
             tracks.removeValue(forKey: id)
         }
+        let configuredIDs = Set(configurations.keys)
+        tracks = tracks.filter { configuredIDs.contains($0.key) }
 
-        guard snapshot.timestamp.isValid else { return outputStates() }
+        guard snapshot.timestamp.isValid else { return outputStates(for: configuredIDs) }
         if let lastSnapshotTimestamp,
            CMTimeCompare(snapshot.timestamp, lastSnapshotTimestamp) <= 0 {
-            return outputStates()
+            return outputStates(for: configuredIDs)
         }
         lastSnapshotTimestamp = snapshot.timestamp
 
         // The UI expresses smoothing strength: zero follows each new detection exactly.
         // Keep a small response even at maximum strength so landmarks never freeze in place.
         let alpha = max(0.05, 1 - boundedSmoothing(smoothing))
-        for id in FeatureID.allCases {
-            guard let configuration = configurations[id], configuration.isEnabled else { continue }
-            let detection = snapshot.detections[id].flatMap { candidate in
-                candidate.id == id && isValid(candidate) ? candidate : nil
+        for (windowID, configuration) in configurations {
+            guard configuration.isEnabled else { continue }
+            let featureID = windowID.featureID
+            let detection = snapshot.detections[featureID].flatMap { candidate in
+                candidate.id == featureID && isValid(candidate) ? candidate : nil
             }
             update(
-                id: id,
+                id: windowID,
                 detection: detection,
                 at: snapshot.timestamp,
                 showThreshold: boundedThreshold(configuration.detectionThreshold),
                 smoothing: alpha
             )
         }
-        return outputStates()
+        return outputStates(for: configuredIDs)
     }
 
     /// Clears all held geometry and timestamp history, for camera stop or full reset.
@@ -71,7 +95,7 @@ struct TrackingSmoother {
     }
 
     private mutating func update(
-        id: FeatureID,
+        id: WindowInstanceID,
         detection: FeatureDetection?,
         at timestamp: CMTime,
         showThreshold: Float,
@@ -115,11 +139,9 @@ struct TrackingSmoother {
         )
     }
 
-    private func outputStates() -> [FeatureID: SmoothedFeatureState] {
-        Dictionary(uniqueKeysWithValues: FeatureID.allCases.map { id in
-            guard let track = tracks[id] else {
-                return (id, SmoothedFeatureState(detection: nil, lifecycle: .hidden, fadeOpacity: 0))
-            }
+    private func outputStates(for ids: Set<WindowInstanceID>) -> [WindowInstanceID: SmoothedFeatureState] {
+        Dictionary(uniqueKeysWithValues: ids.map { id in
+            guard let track = tracks[id] else { return (id, Self.hiddenState) }
             return (id, SmoothedFeatureState(
                 detection: track.detection,
                 lifecycle: track.lifecycle,
@@ -127,6 +149,12 @@ struct TrackingSmoother {
             ))
         })
     }
+
+    private static let hiddenState = SmoothedFeatureState(
+        detection: nil,
+        lifecycle: .hidden,
+        fadeOpacity: 0
+    )
 
     private func smoothed(from previous: FeatureDetection, toward current: FeatureDetection, alpha: CGFloat) -> FeatureDetection {
         let old = previous.normalizedRect

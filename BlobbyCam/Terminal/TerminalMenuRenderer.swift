@@ -16,6 +16,11 @@ struct TerminalMenuRenderer {
         "\u{001B}[38;2;255;112;208m"
     ]
 
+    private struct Screen {
+        var lines: [String]
+        var selectedLine: Int
+    }
+
     func renderLoading(cameraStatus: String, width: Int, height: Int) -> String {
         let contentWidth = max(1, min(64, width) - 2)
         let status = cameraStatus == "IDLE" ? "STARTING" : cameraStatus
@@ -58,49 +63,45 @@ struct TerminalMenuRenderer {
     ) -> String {
         let columns = max(3, width)
         let rows = max(0, height)
+        guard rows > 0 else { return "" }
         let contentWidth = columns - 2
         let border = "┌" + String(repeating: "─", count: contentWidth) + "┐"
 
-        let lines = model.selectedFeature.map { featureID in
-            featureLines(
-                featureID: featureID,
-                model: model,
-                snapshot: snapshot,
-                border: border,
-                contentWidth: contentWidth,
-                height: rows
-            )
-        } ?? homeLines(model: model, snapshot: snapshot, border: border, contentWidth: contentWidth)
-
-        guard rows > 0 else { return "" }
-        if lines.count <= rows { return lines.joined(separator: "\n") }
-        // Keep the selected control visible when Terminal is made shorter.
-        guard rows >= 7 else {
-            return Array(lines.prefix(rows)).joined(separator: "\n")
-        }
-        let selectedLine: Int
-        if let field = model.selectedFeatureFieldIndex, model.selectedFeature != nil {
-            selectedLine = 5 + field
+        let screen: Screen
+        if let featureID = model.selectedFeature {
+            if model.isEditingWindowSettings, let windowID = model.selectedWindowInstanceID {
+                screen = featureLines(
+                    featureID: featureID,
+                    windowID: windowID,
+                    model: model,
+                    snapshot: snapshot,
+                    border: border,
+                    contentWidth: contentWidth,
+                    height: rows
+                )
+            } else {
+                screen = windowListLines(
+                    featureID: featureID,
+                    model: model,
+                    snapshot: snapshot,
+                    border: border,
+                    contentWidth: contentWidth,
+                    height: rows
+                )
+            }
         } else {
-            selectedLine = model.selectedHomeIndex < 7
-                ? 4 + model.selectedHomeIndex
-                : (model.selectedHomeIndex < 13 ? 12 + model.selectedHomeIndex - 7 : 18 + model.selectedHomeIndex - 13)
+            screen = homeLines(model: model, snapshot: snapshot, border: border, contentWidth: contentWidth, height: rows)
         }
-        let visibleCount = rows - 5
-        let bodyEnd = lines.count - 3
-        let start = min(max(3, selectedLine - visibleCount / 2), max(3, bodyEnd - visibleCount))
-        let visible = Array(lines.prefix(3))
-            + Array(lines[start..<min(start + visibleCount, bodyEnd)])
-            + Array(lines.suffix(2))
-        return visible.joined(separator: "\n")
+        return fit(screen, rows: rows).joined(separator: "\n")
     }
 
     private func homeLines(
         model: TerminalMenuModel,
         snapshot: TerminalMenuSnapshot,
         border: String,
-        contentWidth: Int
-    ) -> [String] {
+        contentWidth: Int,
+        height: Int
+    ) -> Screen {
         var lines = [
             border,
             box(centered("D O D O N . O N E   —   B L O B B Y   C A M", width: contentWidth), width: contentWidth),
@@ -118,12 +119,16 @@ struct TerminalMenuRenderer {
         lines.append(section("FEATURE WINDOWS", width: contentWidth))
 
         for (offset, featureID) in FeatureID.allCases.enumerated() {
-            let value = snapshot.features[featureID].map { $0.isEnabled ? "ON" : "OFF" } ?? "NO DATA"
+            let windows = snapshot.windowIDs(for: featureID).compactMap(snapshot.window(for:))
+            let count = windows.count
+            let enabledCount = windows.filter(\.isEnabled).count
+            let status = enabledCount == 0 ? "OFF" : (enabledCount == count ? "ON" : "MIXED")
+            let value = count == 0 ? "NO DATA" : "\(status)  ·  \(count)"
             lines.append(menuRow(
                 7 + offset,
                 featureID.windowTitle,
                 value,
-                active: snapshot.features[featureID]?.isEnabled == true,
+                active: enabledCount > 0,
                 model: model,
                 width: contentWidth
             ))
@@ -138,45 +143,99 @@ struct TerminalMenuRenderer {
             width: contentWidth
         ))
         lines.append(menuRow(14, "QUIT", "ENTER", active: false, model: model, width: contentWidth))
-        lines.append(box(" ↑/↓ SELECT  ←/→ CHANGE  ENTER: WINDOW SETTINGS", width: contentWidth))
+        let help = contentWidth < 44
+            ? " ↑/↓ MOVE  ←/→ CHANGE  ENTER: WINDOWS"
+            : " ↑/↓ SELECT  ←/→ CHANGE  ENTER: WINDOWS"
+        lines.append(box(help, width: contentWidth))
         lines.append(rainbowLink(width: contentWidth))
         lines.append("└" + String(repeating: "─", count: contentWidth) + "┘")
-        return lines
+        addFiller(to: &lines, targetHeight: height, contentWidth: contentWidth, footerCount: 3)
+        return Screen(lines: lines, selectedLine: homeSelectedLine(model.selectedHomeIndex))
     }
 
-    private func featureLines(
+    private func windowListLines(
         featureID: FeatureID,
         model: TerminalMenuModel,
         snapshot: TerminalMenuSnapshot,
         border: String,
         contentWidth: Int,
         height: Int
-    ) -> [String] {
-        let feature = snapshot.features[featureID]
+    ) -> Screen {
+        let ids = snapshot.windowIDs(for: featureID)
         var lines = [
             border,
             box(centered("D O D O N . O N E   —   B L O B B Y   C A M", width: contentWidth), width: contentWidth),
-            box(centered("FEATURE / \(featureID.windowTitle)", width: contentWidth), width: contentWidth),
+            box(centered("WINDOWS / \(featureID.windowTitle)", width: contentWidth), width: contentWidth),
+            box(" CAMERA: \(snapshot.cameraStatus)", width: contentWidth),
+            section("WINDOWS", width: contentWidth)
+        ]
+        let count = ids.count
+        let maximum = snapshot.maximumWindowCount
+        lines.append(rowBox(
+            label: "WINDOWS",
+            value: "\(count) / \(maximum)",
+            selected: model.selectedWindowInstanceID == nil,
+            active: false,
+            width: contentWidth
+        ))
+
+        for (index, id) in ids.enumerated() {
+            let title = featureID.windowTitle(ordinal: index + 1)
+            let instance = snapshot.window(for: id)
+            let value = instance.map { $0.isFrozen ? "FROZEN" : ($0.isEnabled ? "ON" : "OFF") } ?? "NO DATA"
+            lines.append(rowBox(
+                label: title,
+                value: value,
+                selected: model.selectedWindowInstanceID == id,
+                active: instance?.isEnabled == true,
+                width: contentWidth
+            ))
+        }
+
+        lines.append(box(" ↑/↓ SELECT  ←/→ WINDOWS  ENTER: SETTINGS  ESC: BACK", width: contentWidth))
+        lines.append(rainbowLink(width: contentWidth))
+        lines.append("└" + String(repeating: "─", count: contentWidth) + "┘")
+        addFiller(to: &lines, targetHeight: height, contentWidth: contentWidth, footerCount: 3)
+        let selectedLine = model.selectedWindowInstanceID.flatMap(ids.firstIndex(of:)).map { $0 + 6 } ?? 5
+        return Screen(lines: lines, selectedLine: selectedLine)
+    }
+
+    private func featureLines(
+        featureID: FeatureID,
+        windowID: WindowInstanceID,
+        model: TerminalMenuModel,
+        snapshot: TerminalMenuSnapshot,
+        border: String,
+        contentWidth: Int,
+        height: Int
+    ) -> Screen {
+        let feature = snapshot.window(for: windowID)
+        let ids = snapshot.windowIDs(for: featureID)
+        let ordinal = (ids.firstIndex(of: windowID) ?? model.selectedWindowIndex) + 1
+        var lines = [
+            border,
+            box(centered("D O D O N . O N E   —   B L O B B Y   C A M", width: contentWidth), width: contentWidth),
+            box(centered("FEATURE / \(featureID.windowTitle(ordinal: ordinal))", width: contentWidth), width: contentWidth),
             box(" CAMERA: \(snapshot.cameraStatus)", width: contentWidth),
             section("SETTINGS", width: contentWidth)
         ]
 
         for field in TerminalFeatureField.allCases {
-            lines.append(featureRow(field: field, featureID: featureID, feature: feature, model: model, width: contentWidth))
+            lines.append(featureRow(
+                field: field,
+                featureID: featureID,
+                windowID: windowID,
+                feature: feature,
+                model: model,
+                width: contentWidth
+            ))
         }
 
-        lines.append(section("", width: contentWidth))
-        let footer = [
-            box(" ↑/↓ SELECT   ←/→ ADJUST   ENTER ACTIVATE", width: contentWidth),
-            box(centered("ESC = BACK", width: contentWidth), width: contentWidth),
-            box("", width: contentWidth),
-            rainbowLink(width: contentWidth),
-            "└" + String(repeating: "─", count: contentWidth) + "┘"
-        ]
-        let fillerCount = max(0, height - lines.count - footer.count)
-        lines.append(contentsOf: repeatElement(box("", width: contentWidth), count: fillerCount))
-        lines.append(contentsOf: footer)
-        return lines
+        lines.append(box(" ↑/↓ SELECT  ←/→ ADJUST  ENTER ACTIVATE  ESC: BACK", width: contentWidth))
+        lines.append(rainbowLink(width: contentWidth))
+        lines.append("└" + String(repeating: "─", count: contentWidth) + "┘")
+        addFiller(to: &lines, targetHeight: height, contentWidth: contentWidth, footerCount: 3)
+        return Screen(lines: lines, selectedLine: 5 + (model.selectedFeatureFieldIndex ?? 0))
     }
 
     private func menuRow(
@@ -195,6 +254,7 @@ struct TerminalMenuRenderer {
     private func featureRow(
         field: TerminalFeatureField,
         featureID: FeatureID,
+        windowID: WindowInstanceID,
         feature: TerminalFeatureSnapshot?,
         model: TerminalMenuModel,
         width: Int
@@ -227,7 +287,9 @@ struct TerminalMenuRenderer {
             value = feature.map { decimal(CGFloat($0.detectionThreshold)) } ?? "--"
         }
 
-        let selected = model.selectedFeature == featureID && model.selectedFeatureField == field
+        let selected = model.selectedFeature == featureID
+            && model.selectedWindowInstanceID == windowID
+            && model.selectedFeatureField == field
         let active = (field == .enabled && feature?.isEnabled == true)
             || (field == .freeze && feature?.isFrozen == true)
         return rowBox(label: fieldLabel(field), value: value, selected: selected, active: active, width: width)
@@ -246,6 +308,36 @@ struct TerminalMenuRenderer {
         case .padding: "CROP PADDING"
         case .detection: "DETECTION"
         }
+    }
+
+    private func homeSelectedLine(_ index: Int) -> Int {
+        index < 7 ? 4 + index : 5 + index
+    }
+
+    private func addFiller(to lines: inout [String], targetHeight: Int, contentWidth: Int, footerCount: Int) {
+        let fillerCount = max(0, targetHeight - lines.count)
+        guard fillerCount > 0 else { return }
+        let insertion = max(0, lines.count - footerCount)
+        lines.insert(contentsOf: repeatElement(box("", width: contentWidth), count: fillerCount), at: insertion)
+    }
+
+    private func fit(_ screen: Screen, rows: Int) -> [String] {
+        let lines = screen.lines
+        guard lines.count > rows else { return lines }
+        guard rows >= 7 else { return Array(lines.prefix(rows)) }
+
+        let headerCount = 3
+        let footerCount = 3
+        let bodyStart = headerCount
+        let bodyEnd = lines.count - footerCount
+        let bodyCapacity = max(1, rows - headerCount - footerCount)
+        let maximumStart = max(bodyStart, bodyEnd - bodyCapacity)
+        let desiredStart = screen.selectedLine - bodyCapacity / 2
+        let start = min(max(bodyStart, desiredStart), maximumStart)
+        let end = min(bodyEnd, start + bodyCapacity)
+        let body = Array(lines[start..<end])
+        let result = Array(lines.prefix(headerCount)) + body + Array(lines.suffix(footerCount))
+        return Array(result.prefix(rows))
     }
 
     private func section(_ title: String, width: Int) -> String {

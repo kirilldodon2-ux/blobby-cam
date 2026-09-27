@@ -2,6 +2,16 @@
 
 Date: 2026-09-26
 
+## 2026-09-27 — window copies and duplicate-close fix
+
+The user and Kristi checked the previous single-window build successfully. The new copies build has not yet received the same live camera check.
+
+- Each feature starts with one real `NSPanel` and now permits up to 32 copies. Creating 20 MOUTH instances is covered by deterministic tests: they inherit the first mouth's crop and size at creation, then retain separate native sizes and stable IDs. One camera/Vision result supplies all copies; a per-instance confidence lifecycle and crop/freeze state allow later independent edits.
+- The user supplied a crash report after closing a duplicated mouth window. It showed `EXC_BAD_ACCESS` in `objc_release` while AppKit drained the main-thread autorelease pool. The likely trigger in that build was synchronous panel reconciliation inside its own `windowShouldClose` callback. The callback now updates `AppState`; reconciliation runs after it returns. Removed extra panels are hidden in a bounded per-feature reuse pool rather than force-released. Swift/ARC keeps `isReleasedWhenClosed = false`.
+- The new 20-mouth regression test closes a middle copy after the close callback returns, drains the run loop/autorelease pool, and verifies survivor IDs, panels, sizes, and numbering. A separate test verifies that a retired native panel can serve a new ID without replacing surviving panels.
+- Final integrated Xcode result: **114 passed, 0 failed, 0 skipped** on Apple silicon/macOS 27.0, `.build/DerivedData-CopyFinal/Logs/Test/Test-BlobbyCam-2026.09.27_20-25-27-+0300.xcresult`. Release build and local unsigned package succeeded: 3.2 MB app, 864 KB ZIP. Checksum verification and project-local `--no-run` installation passed; the installed executable hash matched the Release build.
+- **Live checks still needed for this build:** spawn and resize 20 mouths with camera active, close several copies by their red buttons, confirm no crash after repeated add/remove, and measure frame rate/memory for at least ten minutes. The user's earlier live check covered the backup build, not this change.
+
 ## Window motion correction — implemented, live check pending
 
 The user reported that the previous build moved panels with their head and snapped back after a mouse drag. The current source now defaults `AppState.follow` to `false`; deterministic static-placement and native-resize tests pass. A fresh real-camera check is still required.

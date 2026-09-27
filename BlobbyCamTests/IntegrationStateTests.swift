@@ -367,6 +367,81 @@ final class IntegrationStateTests: XCTestCase {
         XCTAssertEqual(panel.contentView?.frame.size, NSSize(width: 360, height: 270))
     }
 
+    func testFrozenWindowCopyRetainsItsOwnFrameWhileAnotherCopyAdvances() throws {
+        let renderer = try XCTUnwrap(SharedRenderer())
+        let first = WindowInstanceID(featureID: .mouth, serial: 1)
+        let second = WindowInstanceID(featureID: .mouth, serial: 2)
+        let firstFrame = try makeFrame(timestamp: 1)
+        let secondFrame = try makeFrame(timestamp: 2)
+        let firstDetection = FeatureDetection(
+            id: .mouth,
+            normalizedRect: CGRect(x: 0.2, y: 0.25, width: 0.2, height: 0.1),
+            confidence: 0.95,
+            timestamp: firstFrame.timestamp
+        )
+        let nextDetection = FeatureDetection(
+            id: .mouth,
+            normalizedRect: CGRect(x: 0.6, y: 0.25, width: 0.2, height: 0.1),
+            confidence: 0.95,
+            timestamp: secondFrame.timestamp
+        )
+        let firstStates = [
+            FeatureID.mouth: SmoothedFeatureState(
+                detection: firstDetection,
+                lifecycle: .visible,
+                fadeOpacity: 1
+            )
+        ]
+
+        renderer.update(
+            frame: firstFrame,
+            featureStates: firstStates,
+            configurations: [first: .default, second: .default],
+            requestedMirror: false
+        )
+
+        var secondConfiguration = FeatureConfiguration.default
+        secondConfiguration.cropOffsetX = 0.25
+        var frozenFirstConfiguration = FeatureConfiguration.default
+        frozenFirstConfiguration.isFrozen = true
+        let nextStates = [
+            FeatureID.mouth: SmoothedFeatureState(
+                detection: nextDetection,
+                lifecycle: .visible,
+                fadeOpacity: 1
+            )
+        ]
+        renderer.update(
+            frame: secondFrame,
+            featureStates: nextStates,
+            configurations: [first: frozenFirstConfiguration, second: secondConfiguration],
+            requestedMirror: false
+        )
+
+        XCTAssertEqual(renderer.renderedTimestamp(for: first), firstFrame.timestamp)
+        XCTAssertEqual(renderer.renderedTimestamp(for: second), secondFrame.timestamp)
+
+        let thirdFrame = try makeFrame(timestamp: 3)
+        let noDetection = [
+            FeatureID.mouth: SmoothedFeatureState(
+                detection: nil,
+                lifecycle: .hidden,
+                fadeOpacity: 0
+            )
+        ]
+        renderer.update(
+            frame: thirdFrame,
+            featureStates: noDetection,
+            configurations: [first: frozenFirstConfiguration, second: secondConfiguration],
+            requestedMirror: false
+        )
+
+        XCTAssertEqual(renderer.renderedTimestamp(for: first), firstFrame.timestamp)
+        XCTAssertNil(renderer.renderedTimestamp(for: second))
+        XCTAssertTrue(renderer.hasFrame(for: first))
+        XCTAssertFalse(renderer.hasFrame(for: second))
+    }
+
     private func apply(
         _ manager: FeatureWindowManager,
         frame: CameraFrame,

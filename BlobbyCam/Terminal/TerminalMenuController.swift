@@ -84,7 +84,8 @@ final class TerminalMenuController {
     /// Applies the same typed key path as the production terminal input callback.
     func handle(_ key: TerminalKey) {
         showingStartupLoading = false
-        if let action = model.handle(key) {
+        let snapshot = makeSnapshot()
+        if let action = model.handle(key, snapshot: snapshot) {
             dispatch(action)
         }
         redrawIfRunning()
@@ -117,6 +118,24 @@ final class TerminalMenuController {
             onResetFeatureSize(featureID)
         case let .adjustFeature(featureID, field, direction):
             adjustFeature(featureID, field: field, direction: direction)
+        case let .adjustWindowCount(featureID, direction):
+            appState.setWindowCount(
+                appState.windowCount(for: featureID) + direction,
+                for: featureID
+            )
+        case let .toggleWindowEnabled(windowID):
+            guard let configuration = appState.configuration(for: windowID) else { return }
+            appState.setFeatureEnabled(!configuration.isEnabled, for: windowID)
+        case let .toggleWindowFreeze(windowID):
+            guard let configuration = appState.configuration(for: windowID), configuration.isEnabled else { return }
+            appState.setFeatureFrozen(!configuration.isFrozen, for: windowID)
+        case let .resetWindowSize(windowID):
+            appState.setWindowScale(1, for: windowID)
+            if appState.windowIDs(for: windowID.featureID).first == windowID {
+                onResetFeatureSize(windowID.featureID)
+            }
+        case let .adjustWindow(windowID, field, direction):
+            adjustWindow(windowID, field: field, direction: direction)
         case .toggleGoofyUI:
             onToggleGoofyUI()
         case .quit:
@@ -151,16 +170,44 @@ final class TerminalMenuController {
         }
     }
 
+    private func adjustWindow(_ windowID: WindowInstanceID, field: TerminalFeatureField, direction: Int) {
+        guard let configuration = appState.configuration(for: windowID) else { return }
+        switch field {
+        case .enabled:
+            appState.setFeatureEnabled(!configuration.isEnabled, for: windowID)
+        case .freeze:
+            appState.setFeatureFrozen(!configuration.isFrozen, for: windowID)
+        case .sizeReset:
+            break
+        case .windowX:
+            appState.setWindowOffsetX(configuration.windowOffsetX + CGFloat(direction) * 10, for: windowID)
+        case .windowY:
+            appState.setWindowOffsetY(configuration.windowOffsetY + CGFloat(direction) * 10, for: windowID)
+        case .cropZoom:
+            appState.setCropZoom(configuration.cropZoom + CGFloat(direction) * 0.25, for: windowID)
+        case .panX:
+            appState.setCropOffsetX(configuration.cropOffsetX + CGFloat(direction) * 0.05, for: windowID)
+        case .panY:
+            appState.setCropOffsetY(configuration.cropOffsetY + CGFloat(direction) * 0.05, for: windowID)
+        case .padding:
+            appState.setCropPadding(bounded(configuration.cropPadding + CGFloat(direction) * 0.05, to: 0...1), for: windowID)
+        case .detection:
+            appState.setDetectionThreshold(configuration.detectionThreshold + Float(direction) * 0.05, for: windowID)
+        }
+    }
+
     private func bounded(_ value: CGFloat, to range: ClosedRange<CGFloat>) -> CGFloat {
         min(max(value, range.lowerBound), range.upperBound)
     }
 
     private func makeSnapshot() -> TerminalMenuSnapshot {
-        TerminalMenuSnapshot(
+        let snapshot = TerminalMenuSnapshot(
             appState: appState,
             goofyUIVisible: goofyUIVisible(),
             windowSizes: windowSizes()
         )
+        model.reconcile(with: snapshot)
+        return snapshot
     }
 
     private func renderCurrentFrame() -> String {

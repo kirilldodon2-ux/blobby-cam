@@ -3,16 +3,29 @@ import MetalKit
 
 @MainActor
 final class FeatureRenderView: MTKView, MTKViewDelegate {
-    let featureID: FeatureID
+    let windowID: WindowInstanceID
+    var featureID: FeatureID { windowID.featureID }
     private weak var renderer: SharedRenderer?
 
     override var isOpaque: Bool { false }
 
     init(featureID: FeatureID, renderer: SharedRenderer, device: MTLDevice) {
-        self.featureID = featureID
+        self.windowID = WindowInstanceID(featureID: featureID, serial: 1)
         self.renderer = renderer
         super.init(frame: .zero, device: device)
 
+        configureView()
+    }
+
+    init(windowID: WindowInstanceID, renderer: SharedRenderer, device: MTLDevice) {
+        self.windowID = windowID
+        self.renderer = renderer
+        super.init(frame: .zero, device: device)
+
+        configureView()
+    }
+
+    private func configureView() {
         delegate = self
         colorPixelFormat = .bgra8Unorm
         framebufferOnly = false
@@ -28,7 +41,7 @@ final class FeatureRenderView: MTKView, MTKViewDelegate {
     }
 
     func draw(in view: MTKView) {
-        renderer?.draw(featureID, in: view)
+        renderer?.draw(windowID, in: view)
     }
 
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {

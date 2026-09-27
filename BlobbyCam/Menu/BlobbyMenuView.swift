@@ -3,6 +3,10 @@ import SwiftUI
 struct BlobbyMenuView: View {
     @ObservedObject var appState: AppState
 
+    private var totalWindowCount: Int {
+        appState.allWindowIDs().count
+    }
+
     var body: some View {
         ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: 12) {
@@ -166,11 +170,14 @@ struct BlobbyMenuView: View {
                     .font(.system(size: 11, weight: .black, design: .rounded))
                     .tracking(1.1)
                 Spacer()
-                Text("6")
+                Text("\(totalWindowCount)")
                     .font(.system(size: 10, weight: .black, design: .rounded))
                     .frame(width: 24, height: 24)
                     .background(BlobbyTheme.accentSoft, in: Circle())
                     .overlay(Circle().stroke(BlobbyTheme.ink, lineWidth: 1.5))
+                    .accessibilityLabel("Total feature windows")
+                    .accessibilityValue("\(totalWindowCount)")
+                    .accessibilityIdentifier("total-window-count")
             }
             Text("Drag a window edge to resize; crop framing stays independent.")
                 .font(.system(size: 9, weight: .medium, design: .rounded))
@@ -186,7 +193,7 @@ struct BlobbyMenuView: View {
             Text("BLOBBY CAM")
                 .fontWeight(.black)
             Circle().fill(BlobbyTheme.accentSoft).frame(width: 5, height: 5)
-            Text("SIX CAMERA WINDOWS")
+            Text("\(totalWindowCount) CAMERA WINDOWS")
                 .fontWeight(.bold)
             Spacer(minLength: 0)
         }

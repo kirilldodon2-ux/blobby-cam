@@ -13,15 +13,15 @@ final class SharedRenderer {
     }
 
     private struct RenderState {
-        let crops: [FeatureID: FeatureCrop]
-        let opacities: [FeatureID: CGFloat]
+        let crops: [WindowInstanceID: FeatureCrop]
+        let opacities: [WindowInstanceID: CGFloat]
     }
 
     let device: MTLDevice
     private let cropRenderer: CoreImageCropRenderer
     private var renderState: RenderState?
     private var latestTimestamp: CMTime?
-    private var renderViews: [FeatureID: WeakRenderView] = [:]
+    private var renderViews: [WindowInstanceID: WeakRenderView] = [:]
 
     /// Returns nil when the system has no Metal device or command queue.
     init?(device: MTLDevice? = MTLCreateSystemDefaultDevice()) {
@@ -31,8 +31,13 @@ final class SharedRenderer {
     }
 
     func makeRenderView(for featureID: FeatureID) -> FeatureRenderView {
-        let view = FeatureRenderView(featureID: featureID, renderer: self, device: device)
-        renderViews[featureID] = WeakRenderView(view)
+        // Compatibility entry point for the original single-window-per-feature path.
+        makeRenderView(for: WindowInstanceID(featureID: featureID, serial: 1))
+    }
+
+    func makeRenderView(for windowID: WindowInstanceID) -> FeatureRenderView {
+        let view = FeatureRenderView(windowID: windowID, renderer: self, device: device)
+        renderViews[windowID] = WeakRenderView(view)
         return view
     }
 
@@ -45,23 +50,68 @@ final class SharedRenderer {
         requestedMirror: Bool,
         autoCropScale: Bool = false
     ) {
+        let instanceConfigurations = Dictionary(uniqueKeysWithValues: configurations.map { featureID, configuration in
+            (WindowInstanceID(featureID: featureID, serial: 1), configuration)
+        })
+        let instanceStates = Dictionary(uniqueKeysWithValues: featureStates.map { featureID, state in
+            (WindowInstanceID(featureID: featureID, serial: 1), state)
+        })
+        update(
+            frame: frame,
+            featureStates: instanceStates,
+            configurations: instanceConfigurations,
+            requestedMirror: requestedMirror,
+            autoCropScale: autoCropScale
+        )
+    }
+
+    /// Compatibility path for instance configurations paired with one shared feature state.
+    /// Runtime copy handling uses the per-instance overload below.
+    func update(
+        frame: CameraFrame,
+        featureStates: [FeatureID: SmoothedFeatureState],
+        configurations: [WindowInstanceID: FeatureConfiguration],
+        requestedMirror: Bool,
+        autoCropScale: Bool = false
+    ) {
+        let instanceStates = Dictionary(uniqueKeysWithValues: configurations.keys.map { id in
+            (id, featureStates[id.featureID] ?? Self.hiddenState)
+        })
+        update(
+            frame: frame,
+            featureStates: instanceStates,
+            configurations: configurations,
+            requestedMirror: requestedMirror,
+            autoCropScale: autoCropScale
+        )
+    }
+
+    /// Builds one lazy crop graph for each configured window instance while sharing a single
+    /// CIImage wrapper and the same feature detection across all copies of that feature.
+    func update(
+        frame: CameraFrame,
+        featureStates: [WindowInstanceID: SmoothedFeatureState],
+        configurations: [WindowInstanceID: FeatureConfiguration],
+        requestedMirror: Bool,
+        autoCropScale: Bool = false
+    ) {
         guard frame.timestamp.isValid else { return }
         if let latestTimestamp, CMTimeCompare(frame.timestamp, latestTimestamp) < 0 { return }
         latestTimestamp = frame.timestamp
         let sourceImage = CIImage(cvPixelBuffer: frame.pixelBuffer)
         let pixelSize = CGSize(width: CVPixelBufferGetWidth(frame.pixelBuffer), height: CVPixelBufferGetHeight(frame.pixelBuffer))
-        var crops: [FeatureID: FeatureCrop] = [:]
-        var opacities: [FeatureID: CGFloat] = [:]
+        var crops: [WindowInstanceID: FeatureCrop] = [:]
+        var opacities: [WindowInstanceID: CGFloat] = [:]
 
-        for featureID in FeatureID.allCases {
-            guard let configuration = configurations[featureID], configuration.isEnabled else { continue }
-            if configuration.isFrozen, let previous = renderState?.crops[featureID] {
-                crops[featureID] = previous
-                opacities[featureID] = 1
+        for (windowID, configuration) in configurations {
+            guard configuration.isEnabled else { continue }
+            if configuration.isFrozen, let previous = renderState?.crops[windowID] {
+                crops[windowID] = previous
+                opacities[windowID] = 1
                 continue
             }
             guard
-                  let state = featureStates[featureID], state.fadeOpacity > 0,
+                  let state = featureStates[windowID], state.fadeOpacity > 0,
                   let detection = state.detection,
                   let pixelCrop = CoreImageCropRenderer.sourcePixelCrop(
                     for: detection,
@@ -80,14 +130,15 @@ final class SharedRenderer {
                     )
                   )
             else { continue }
-            crops[featureID] = FeatureCrop(frame: frame, image: featureImage)
-            opacities[featureID] = state.fadeOpacity
+            crops[windowID] = FeatureCrop(frame: frame, image: featureImage)
+            opacities[windowID] = state.fadeOpacity
         }
 
         renderState = RenderState(crops: crops, opacities: opacities)
-        for featureID in FeatureID.allCases {
-            guard let view = renderViews[featureID]?.value else { continue }
-            view.alphaValue = Double(opacities[featureID] ?? 0)
+        discardReleasedViews()
+        for (windowID, weakView) in renderViews {
+            guard let view = weakView.value else { continue }
+            view.alphaValue = Double(opacities[windowID] ?? 0)
             view.setNeedsDisplay(view.bounds)
         }
     }
@@ -95,6 +146,7 @@ final class SharedRenderer {
     func clear() {
         renderState = nil
         latestTimestamp = nil
+        discardReleasedViews()
         for weakView in renderViews.values {
             guard let view = weakView.value else { continue }
             view.alphaValue = 0
@@ -103,6 +155,14 @@ final class SharedRenderer {
     }
 
     func retainFrozen(configurations: [FeatureID: FeatureConfiguration]) {
+        // Compatibility entry point for the original single-window-per-feature path.
+        let instanceConfigurations = Dictionary(uniqueKeysWithValues: configurations.map { featureID, configuration in
+            (WindowInstanceID(featureID: featureID, serial: 1), configuration)
+        })
+        retainFrozen(configurations: instanceConfigurations)
+    }
+
+    func retainFrozen(configurations: [WindowInstanceID: FeatureConfiguration]) {
         latestTimestamp = nil
         let retained = renderState?.crops.filter { id, _ in
             configurations[id]?.isEnabled == true && configurations[id]?.isFrozen == true
@@ -111,29 +171,51 @@ final class SharedRenderer {
             crops: retained,
             opacities: Dictionary(uniqueKeysWithValues: retained.keys.map { ($0, CGFloat(1)) })
         )
-        for (id, weakView) in renderViews {
+        for (windowID, weakView) in renderViews {
             guard let view = weakView.value else { continue }
-            view.alphaValue = retained[id] == nil ? 0 : 1
+            view.alphaValue = retained[windowID] == nil ? 0 : 1
             view.setNeedsDisplay(view.bounds)
         }
     }
 
     func hasFrame(for featureID: FeatureID) -> Bool {
-        renderState?.crops[featureID] != nil
+        hasFrame(for: WindowInstanceID(featureID: featureID, serial: 1))
+    }
+
+    func hasFrame(for windowID: WindowInstanceID) -> Bool {
+        renderState?.crops[windowID] != nil
     }
 
     func renderedTimestamp(for featureID: FeatureID) -> CMTime? {
-        renderState?.crops[featureID]?.frame.timestamp
+        renderedTimestamp(for: WindowInstanceID(featureID: featureID, serial: 1))
+    }
+
+    func renderedTimestamp(for windowID: WindowInstanceID) -> CMTime? {
+        renderState?.crops[windowID]?.frame.timestamp
     }
 
     func draw(_ featureID: FeatureID, in view: MTKView) {
+        draw(WindowInstanceID(featureID: featureID, serial: 1), in: view)
+    }
+
+    private static let hiddenState = SmoothedFeatureState(
+        detection: nil,
+        lifecycle: .hidden,
+        fadeOpacity: 0
+    )
+
+    func draw(_ windowID: WindowInstanceID, in view: MTKView) {
         guard let state = renderState,
-              let crop = state.crops[featureID]
+              let crop = state.crops[windowID]
         else {
             clearDrawable(in: view)
             return
         }
         cropRenderer.draw(crop.image, retaining: crop.frame, in: view)
+    }
+
+    private func discardReleasedViews() {
+        renderViews = renderViews.filter { $0.value.value != nil }
     }
 
     private func clearDrawable(in view: MTKView) {

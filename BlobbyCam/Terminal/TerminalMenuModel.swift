@@ -37,6 +37,11 @@ enum TerminalMenuAction: Equatable {
     case resetFeatureSize(FeatureID)
     /// A direction of -1 or +1. The controller maps it to the selected field's step.
     case adjustFeature(FeatureID, TerminalFeatureField, Int)
+    case adjustWindowCount(FeatureID, Int)
+    case toggleWindowEnabled(WindowInstanceID)
+    case toggleWindowFreeze(WindowInstanceID)
+    case resetWindowSize(WindowInstanceID)
+    case adjustWindow(WindowInstanceID, TerminalFeatureField, Int)
     case toggleGoofyUI
     case quit
 }
@@ -78,7 +83,11 @@ struct TerminalMenuSnapshot: Equatable {
     let smoothing: CGFloat
     let cameraStatus: String
     let goofyUIVisible: Bool
+    let maximumWindowCount: Int
+    /// Legacy first-window projection, retained for existing views and test fixtures.
     let features: [FeatureID: TerminalFeatureSnapshot]
+    let windowIDsByFeature: [FeatureID: [WindowInstanceID]]
+    let windowsByID: [WindowInstanceID: TerminalFeatureSnapshot]
 
     init(
         isLive: Bool,
@@ -89,7 +98,10 @@ struct TerminalMenuSnapshot: Equatable {
         smoothing: CGFloat,
         cameraStatus: String = "IDLE",
         goofyUIVisible: Bool,
-        features: [FeatureID: TerminalFeatureSnapshot]
+        maximumWindowCount: Int = 32,
+        features: [FeatureID: TerminalFeatureSnapshot],
+        windowIDsByFeature: [FeatureID: [WindowInstanceID]] = [:],
+        windowsByID: [WindowInstanceID: TerminalFeatureSnapshot] = [:]
     ) {
         self.isLive = isLive
         self.showAll = showAll
@@ -99,10 +111,33 @@ struct TerminalMenuSnapshot: Equatable {
         self.smoothing = smoothing
         self.cameraStatus = cameraStatus
         self.goofyUIVisible = goofyUIVisible
+        self.maximumWindowCount = maximumWindowCount
         self.features = features
+
+        var resolvedIDs: [FeatureID: [WindowInstanceID]] = [:]
+        var resolvedWindows: [WindowInstanceID: TerminalFeatureSnapshot] = [:]
+        for featureID in FeatureID.allCases {
+            guard let firstSnapshot = features[featureID] else { continue }
+            let ids = windowIDsByFeature[featureID] ?? [WindowInstanceID(featureID: featureID, serial: 1)]
+            resolvedIDs[featureID] = ids
+            for id in ids {
+                resolvedWindows[id] = windowsByID[id] ?? firstSnapshot
+            }
+        }
+        self.windowIDsByFeature = resolvedIDs
+        self.windowsByID = resolvedWindows
     }
 
-    /// Capture current AppState values and the six already-resolved panel sizes.
+    func windowIDs(for featureID: FeatureID) -> [WindowInstanceID] {
+        windowIDsByFeature[featureID] ?? []
+    }
+
+    func window(for id: WindowInstanceID) -> TerminalFeatureSnapshot? {
+        windowsByID[id]
+    }
+
+    /// Capture current AppState values. `windowSizes` remains the legacy first-panel callback;
+    /// additional panels are sized directly from their own configuration.
     @MainActor
     init(appState: AppState, goofyUIVisible: Bool, windowSizes: [FeatureID: CGSize]) {
         isLive = appState.isLive
@@ -113,15 +148,32 @@ struct TerminalMenuSnapshot: Equatable {
         smoothing = appState.smoothing
         cameraStatus = appState.cameraStatus.terminalLabel
         self.goofyUIVisible = goofyUIVisible
-        features = Dictionary(uniqueKeysWithValues: FeatureID.allCases.compactMap { id in
-            guard
-                let configuration = appState.features[id],
-                let windowSize = windowSizes[id]
-            else {
-                return nil
+        maximumWindowCount = AppState.maximumWindowCount
+
+        var featureSnapshots: [FeatureID: TerminalFeatureSnapshot] = [:]
+        var idsByFeature: [FeatureID: [WindowInstanceID]] = [:]
+        var windowSnapshots: [WindowInstanceID: TerminalFeatureSnapshot] = [:]
+        for featureID in FeatureID.allCases {
+            let ids = appState.windowIDs(for: featureID)
+            idsByFeature[featureID] = ids
+            for (index, id) in ids.enumerated() {
+                guard let configuration = appState.configuration(for: id) else { continue }
+                let scale = configuration.windowScale.isFinite
+                    ? min(max(configuration.windowScale, 0.25), 4)
+                    : 1
+                let configuredSize = configuration.windowSizeOverride ?? CGSize(
+                    width: 240 * scale,
+                    height: 180 * scale
+                )
+                let size = index == 0 ? (windowSizes[featureID] ?? configuredSize) : configuredSize
+                let snapshot = TerminalFeatureSnapshot(configuration: configuration, windowSize: size)
+                windowSnapshots[id] = snapshot
+                if index == 0 { featureSnapshots[featureID] = snapshot }
             }
-            return (id, TerminalFeatureSnapshot(configuration: configuration, windowSize: windowSize))
-        })
+        }
+        features = featureSnapshots
+        windowIDsByFeature = idsByFeature
+        windowsByID = windowSnapshots
     }
 }
 
@@ -129,23 +181,55 @@ struct TerminalMenuSnapshot: Equatable {
 struct TerminalMenuModel {
     private(set) var selectedHomeIndex = 0
     private(set) var selectedFeature: FeatureID?
+    private(set) var selectedWindowInstanceID: WindowInstanceID?
+    private(set) var isEditingWindowSettings = false
     private(set) var selectedFeatureField: TerminalFeatureField = .enabled
+    private(set) var selectedWindowIndex = 0
 
     static let homeItemCount = 15
     static let firstFeatureIndex = 7
 
-    var isShowingFeatureDetails: Bool { selectedFeature != nil }
+    var isShowingWindowList: Bool { selectedFeature != nil && !isEditingWindowSettings }
+    var isShowingFeatureDetails: Bool { selectedFeature != nil && isEditingWindowSettings }
     var selectedFeatureFieldIndex: Int? { TerminalFeatureField.allCases.firstIndex(of: selectedFeatureField) }
 
-    mutating func handle(_ key: TerminalKey) -> TerminalMenuAction? {
-        if key == .quit {
-            return .quit
+    /// Keeps navigation attached to stable IDs when copies are removed or their ordinal changes.
+    mutating func reconcile(with snapshot: TerminalMenuSnapshot) {
+        guard let featureID = selectedFeature else { return }
+        let ids = snapshot.windowIDs(for: featureID)
+        guard !ids.isEmpty else {
+            selectedWindowInstanceID = nil
+            selectedWindowIndex = 0
+            return
         }
 
-        if let featureID = selectedFeature {
-            return handleFeatureKey(key, featureID: featureID)
+        guard let selectedWindowInstanceID else {
+            selectedWindowIndex = min(selectedWindowIndex, ids.count - 1)
+            return
         }
+        if let currentIndex = ids.firstIndex(of: selectedWindowInstanceID) {
+            selectedWindowIndex = currentIndex
+        } else {
+            // If the selected ID was removed, prefer the surviving item immediately before it.
+            selectedWindowIndex = max(0, min(selectedWindowIndex - 1, ids.count - 1))
+            self.selectedWindowInstanceID = ids[selectedWindowIndex]
+        }
+    }
 
+    mutating func handle(_ key: TerminalKey, snapshot: TerminalMenuSnapshot? = nil) -> TerminalMenuAction? {
+        if let snapshot { reconcile(with: snapshot) }
+        if key == .quit { return .quit }
+
+        guard let featureID = selectedFeature else {
+            return handleHomeKey(key)
+        }
+        guard isEditingWindowSettings, let windowID = selectedWindowInstanceID else {
+            return handleWindowListKey(key, featureID: featureID, snapshot: snapshot)
+        }
+        return handleWindowKey(key, featureID: featureID, windowID: windowID)
+    }
+
+    private mutating func handleHomeKey(_ key: TerminalKey) -> TerminalMenuAction? {
         switch key {
         case .up:
             selectedHomeIndex = max(0, selectedHomeIndex - 1)
@@ -164,10 +248,64 @@ struct TerminalMenuModel {
         }
     }
 
-    private mutating func handleFeatureKey(_ key: TerminalKey, featureID: FeatureID) -> TerminalMenuAction? {
+    private mutating func handleWindowListKey(
+        _ key: TerminalKey,
+        featureID: FeatureID,
+        snapshot: TerminalMenuSnapshot?
+    ) -> TerminalMenuAction? {
+        let ids = snapshot?.windowIDs(for: featureID) ?? []
+        switch key {
+        case .up:
+            if selectedWindowInstanceID != nil {
+                if selectedWindowIndex == 0 {
+                    self.selectedWindowInstanceID = nil
+                } else {
+                    selectedWindowIndex -= 1
+                    self.selectedWindowInstanceID = ids.indices.contains(selectedWindowIndex)
+                        ? ids[selectedWindowIndex]
+                        : nil
+                }
+            }
+            return nil
+        case .down:
+            guard !ids.isEmpty else { return nil }
+            if selectedWindowInstanceID == nil {
+                selectedWindowIndex = 0
+                selectedWindowInstanceID = ids[0]
+            } else if selectedWindowIndex + 1 < ids.count {
+                selectedWindowIndex += 1
+                selectedWindowInstanceID = ids[selectedWindowIndex]
+            }
+            return nil
+        case .left:
+            guard snapshot.map({ $0.windowIDs(for: featureID).count > 1 }) ?? true else { return nil }
+            return .adjustWindowCount(featureID, -1)
+        case .right:
+            guard snapshot.map({ $0.windowIDs(for: featureID).count < $0.maximumWindowCount }) ?? true else { return nil }
+            return .adjustWindowCount(featureID, 1)
+        case .enter:
+            guard selectedWindowInstanceID != nil else { return nil }
+            selectedFeatureField = .enabled
+            isEditingWindowSettings = true
+            return nil
+        case .escape:
+            selectedFeature = nil
+            selectedWindowInstanceID = nil
+            isEditingWindowSettings = false
+            selectedWindowIndex = 0
+            return nil
+        case .quit:
+            return .quit
+        }
+    }
+
+    private mutating func handleWindowKey(
+        _ key: TerminalKey,
+        featureID: FeatureID,
+        windowID: WindowInstanceID
+    ) -> TerminalMenuAction? {
         let fields = TerminalFeatureField.allCases
         guard let fieldIndex = fields.firstIndex(of: selectedFeatureField) else { return nil }
-
         switch key {
         case .up:
             selectedFeatureField = fields[max(0, fieldIndex - 1)]
@@ -176,38 +314,38 @@ struct TerminalMenuModel {
             selectedFeatureField = fields[min(fields.count - 1, fieldIndex + 1)]
             return nil
         case .left:
-            return adjustFeatureSelection(featureID: featureID, direction: -1)
+            return adjustWindowSelection(windowID: windowID, direction: -1)
         case .right:
-            return adjustFeatureSelection(featureID: featureID, direction: 1)
+            return adjustWindowSelection(windowID: windowID, direction: 1)
         case .enter:
             switch selectedFeatureField {
             case .enabled:
-                return .toggleFeature(featureID)
+                return .toggleWindowEnabled(windowID)
             case .freeze:
-                return .toggleFreeze(featureID)
+                return .toggleWindowFreeze(windowID)
             case .sizeReset:
-                return .resetFeatureSize(featureID)
+                return .resetWindowSize(windowID)
             case .windowX, .windowY, .cropZoom, .panX, .panY, .padding, .detection:
                 return nil
             }
         case .escape:
-            selectedFeature = nil
+            isEditingWindowSettings = false
             return nil
         case .quit:
             return .quit
         }
     }
 
-    private func adjustFeatureSelection(featureID: FeatureID, direction: Int) -> TerminalMenuAction? {
+    private func adjustWindowSelection(windowID: WindowInstanceID, direction: Int) -> TerminalMenuAction? {
         switch selectedFeatureField {
         case .enabled:
-            return .toggleFeature(featureID)
+            return .toggleWindowEnabled(windowID)
         case .freeze:
-            return .toggleFreeze(featureID)
+            return .toggleWindowFreeze(windowID)
         case .sizeReset:
             return nil
         case .windowX, .windowY, .cropZoom, .panX, .panY, .padding, .detection:
-            return .adjustFeature(featureID, selectedFeatureField, direction)
+            return .adjustWindow(windowID, selectedFeatureField, direction)
         }
     }
 
@@ -237,6 +375,9 @@ struct TerminalMenuModel {
         case 7...12:
             let featureID = FeatureID.allCases[selectedHomeIndex - Self.firstFeatureIndex]
             selectedFeature = featureID
+            selectedWindowInstanceID = nil
+            isEditingWindowSettings = false
+            selectedWindowIndex = 0
             selectedFeatureField = .enabled
             return nil
         case 13: return .toggleGoofyUI
