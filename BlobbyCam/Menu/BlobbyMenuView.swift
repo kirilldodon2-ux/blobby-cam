@@ -149,6 +149,10 @@ struct BlobbyMenuView: View {
             }
             .frame(minHeight: BlobbyTheme.hitTargetHeight)
 
+            stateButton(title: "SYPHON OUTPUT", isOn: appState.syphonEnabled, accessibilityLabel: "Publish feature crops to Syphon") {
+                appState.setSyphonEnabled(!appState.syphonEnabled)
+            }
+
             stateButton(title: "HIDE UI BAR", isOn: appState.allUIBarsHidden, accessibilityLabel: "Hide all feature window titlebars") {
                 appState.setAllUIBarsHidden(!appState.allUIBarsHidden)
             }

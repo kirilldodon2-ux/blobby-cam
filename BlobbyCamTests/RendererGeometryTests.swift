@@ -1,3 +1,6 @@
+import CoreImage
+import Metal
+import Syphon
 import CoreGraphics
 import CoreMedia
 import ImageIO
@@ -102,5 +105,82 @@ final class RendererGeometryTests: XCTestCase {
         ))
         XCTAssertEqual(sameAspect, CGRect(x: 0, y: 0, width: 4, height: 2))
         XCTAssertNil(CoreImageCropRenderer.aspectFillSourceRect(sourceSize: .zero, targetSize: CGSize(width: 100, height: 100)))
+    }
+}
+
+@MainActor
+final class SyphonOutputTests: XCTestCase {
+    func testStreamLifecycleKeepsStableIdentityWhenCopiesAreRemoved() throws {
+        let device = try XCTUnwrap(MTLCreateSystemDefaultDevice())
+        let output = SyphonOutput(renderer: try XCTUnwrap(CoreImageCropRenderer(device: device)))
+        defer { output.stop() }
+        let ids = (1...20).map { WindowInstanceID(featureID: .mouth, serial: UInt64($0)) }
+        var configurations = Dictionary(uniqueKeysWithValues: ids.map { ($0, FeatureConfiguration.default) })
+        output.configure(enabled: false, configurations: configurations)
+        XCTAssertEqual(output.streamCount, 0)
+        output.configure(enabled: true, configurations: configurations)
+        XCTAssertEqual(output.streamCount, 20)
+        let description = try XCTUnwrap(output.serverDescription(for: ids[19]))
+        configurations.removeValue(forKey: ids[3])
+        configurations[ids[4]]?.isEnabled = false
+        output.configure(enabled: true, configurations: configurations)
+        XCTAssertEqual(output.streamCount, 18)
+        XCTAssertEqual(output.serverDescription(for: ids[19])?[SyphonServerDescriptionUUIDKey] as? String,
+                       description[SyphonServerDescriptionUUIDKey] as? String)
+        output.configure(enabled: false, configurations: configurations)
+        XCTAssertEqual(output.streamCount, 0)
+    }
+
+    func testHeldFrameReachesLateMetalClientAndMissingCropClearsOutput() async throws {
+        let device = try XCTUnwrap(MTLCreateSystemDefaultDevice())
+        let renderer = try XCTUnwrap(CoreImageCropRenderer(device: device))
+        let output = SyphonOutput(renderer: renderer)
+        defer { output.stop() }
+        let id = WindowInstanceID(featureID: .mouth, serial: 900)
+        var configuration = FeatureConfiguration.default
+        configuration.windowSizeOverride = CGSize(width: 32, height: 32)
+        output.configure(enabled: true, configurations: [id: configuration])
+        let bounds = CGRect(x: 0, y: 0, width: 64, height: 64)
+        let image = CIImage(color: CIColor(red: 1, green: 0, blue: 0)).cropped(to: bounds)
+        output.publish(images: [id: image], frames: [:], opacities: [id: 1])
+        let client = SyphonMetalClient(serverDescription: try XCTUnwrap(output.serverDescription(for: id)),
+                                      device: device, options: nil, newFrameHandler: nil)
+        defer { client.stop() }
+        XCTAssertTrue(client.isValid)
+        var texture: MTLTexture?
+        for _ in 0..<50 {
+            try await Task.sleep(nanoseconds: 50_000_000)
+            if client.hasNewFrame { texture = client.newFrameImage(); break }
+        }
+        let received = try XCTUnwrap(texture, "An idle sender must deliver the held frame to a late client")
+        XCTAssertEqual(received.width, 64)
+        XCTAssertEqual(received.height, 64)
+        func pixel(_ texture: MTLTexture) throws -> [UInt8] {
+            let ci = try XCTUnwrap(CIImage(mtlTexture: texture, options: nil))
+            var bytes = [UInt8](repeating: 0, count: 4)
+            renderer.context.render(ci, toBitmap: &bytes, rowBytes: 4,
+                                    bounds: CGRect(x: 20, y: 20, width: 1, height: 1),
+                                    format: .RGBA8, colorSpace: CGColorSpaceCreateDeviceRGB())
+            return bytes
+        }
+        let red = try pixel(received)
+        XCTAssertGreaterThan(red[0], 240)
+        XCTAssertLessThan(red[1], 10)
+        XCTAssertEqual(red[3], 255)
+        output.publish(images: [:], frames: [:], opacities: [:])
+        var cleared = false
+        for _ in 0..<50 {
+            try await Task.sleep(nanoseconds: 50_000_000)
+            if client.hasNewFrame, let frame = client.newFrameImage(), try pixel(frame)[3] == 0 {
+                cleared = true; break
+            }
+        }
+        XCTAssertTrue(cleared, "Lost detection must clear the stream instead of retaining stale pixels")
+    }
+
+    func testOutputSizeBoundsExtremeWindowDimensions() {
+        var configuration = FeatureConfiguration.default
+        configuration.windowSizeOverride = CGSize(width: 8000, height: 4000)
+        XCTAssertEqual(SyphonOutput.outputSize(for: configuration), CGSize(width: 1024, height: 512))
     }
 }

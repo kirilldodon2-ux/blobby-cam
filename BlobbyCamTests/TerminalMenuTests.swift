@@ -40,9 +40,10 @@ final class TerminalMenuTests: XCTestCase {
         XCTAssertEqual(action(atHomeIndex: 4, key: .right), .adjustSmoothing(1))
         XCTAssertEqual(action(atHomeIndex: 5, key: .enter), .toggleAutoCropScale)
         XCTAssertEqual(action(atHomeIndex: 6, key: .enter), .toggleAllUIBars)
-        XCTAssertEqual(action(atHomeIndex: 7, key: .enter), .resetAll)
-        XCTAssertEqual(action(atHomeIndex: 14, key: .right), .toggleGoofyUI)
-        XCTAssertEqual(action(atHomeIndex: 15, key: .enter), .quit)
+        XCTAssertEqual(action(atHomeIndex: 7, key: .enter), .toggleSyphon)
+        XCTAssertEqual(action(atHomeIndex: 8, key: .enter), .resetAll)
+        XCTAssertEqual(action(atHomeIndex: 15, key: .right), .toggleGoofyUI)
+        XCTAssertEqual(action(atHomeIndex: 16, key: .enter), .quit)
         for (offset, featureID) in FeatureID.allCases.enumerated() {
             XCTAssertEqual(action(atHomeIndex: TerminalMenuModel.firstFeatureIndex + offset, key: .left), .toggleFeature(featureID))
             XCTAssertEqual(action(atHomeIndex: TerminalMenuModel.firstFeatureIndex + offset, key: .right), .toggleFeature(featureID))
@@ -177,6 +178,7 @@ final class TerminalMenuTests: XCTestCase {
         XCTAssertTrue(frame.contains("SMOOTHING"))
         XCTAssertTrue(frame.contains("AUTO CROP SCALE"))
         XCTAssertTrue(frame.contains("ENTER: WINDOWS"))
+        XCTAssertTrue(frame.contains("SYPHON OUTPUT"))
         XCTAssertTrue(frame.contains("RESET ALL"))
         XCTAssertTrue(frame.contains("SHOW GOOFY UI"))
         XCTAssertTrue(frame.contains("QUIT"))
@@ -228,15 +230,15 @@ final class TerminalMenuTests: XCTestCase {
         let pink = "\u{001B}[38;2;255;112;184m"
 
         var lines = renderer.render(model: model, snapshot: snapshot).components(separatedBy: "\n")
-        XCTAssertTrue(lines[4].contains("\u{001B}[38;2;255;92;146m"), "Active LIVE uses rainbow colors")
-        XCTAssertTrue(stripANSI(lines[4]).hasPrefix("│> LIVE"), "The marker identifies selection")
+        XCTAssertTrue(lines[3].contains("\u{001B}[38;2;255;92;146m"), "Active LIVE uses rainbow colors")
+        XCTAssertTrue(stripANSI(lines[3]).hasPrefix("│> LIVE"), "The marker identifies selection")
 
         _ = model.handle(.down)
         lines = renderer.render(model: model, snapshot: snapshot).components(separatedBy: "\n")
-        XCTAssertTrue(lines[4].contains("\u{001B}[38;2;255;92;146m"), "Active LIVE remains rainbow after selection moves")
-        XCTAssertFalse(stripANSI(lines[4]).hasPrefix("│>"), "LIVE is no longer selected")
-        XCTAssertTrue(lines[5].contains(pink), "The selected SHOW/HIDE ALL row is pink")
-        XCTAssertTrue(stripANSI(lines[5]).hasPrefix("│> HIDE ALL"), "Selection marker remains visible")
+        XCTAssertTrue(lines[3].contains("\u{001B}[38;2;255;92;146m"), "Active LIVE remains rainbow after selection moves")
+        XCTAssertFalse(stripANSI(lines[3]).hasPrefix("│>"), "LIVE is no longer selected")
+        XCTAssertTrue(lines[4].contains(pink), "The selected SHOW/HIDE ALL row is pink")
+        XCTAssertTrue(stripANSI(lines[4]).hasPrefix("│> HIDE ALL"), "Selection marker remains visible")
 
         var featureModel = makeModel(onFeature: .leftEye, snapshot: snapshot)
         let featureLines = renderer.render(model: featureModel, snapshot: snapshot).components(separatedBy: "\n")

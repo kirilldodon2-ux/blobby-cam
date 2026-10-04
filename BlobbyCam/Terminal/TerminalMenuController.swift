@@ -93,6 +93,8 @@ final class TerminalMenuController {
 
     func dispatch(_ action: TerminalMenuAction) {
         switch action {
+        case .toggleSyphon:
+            appState.setSyphonEnabled(!appState.syphonEnabled)
         case .toggleAllUIBars:
             appState.setAllUIBarsHidden(!appState.allUIBarsHidden)
         case .toggleLive:

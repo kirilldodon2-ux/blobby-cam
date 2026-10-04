@@ -19,6 +19,8 @@ final class SharedRenderer {
 
     let device: MTLDevice
     private let cropRenderer: CoreImageCropRenderer
+    private let syphonOutput: SyphonOutput
+    private var syphonConfigurations: [WindowInstanceID: FeatureConfiguration] = [:]
     private var renderState: RenderState?
     private var latestTimestamp: CMTime?
     private var renderViews: [WindowInstanceID: WeakRenderView] = [:]
@@ -28,7 +30,26 @@ final class SharedRenderer {
         guard let device, let cropRenderer = CoreImageCropRenderer(device: device) else { return nil }
         self.device = device
         self.cropRenderer = cropRenderer
+        syphonOutput = SyphonOutput(renderer: cropRenderer)
     }
+
+    var syphonEnabled: Bool { syphonOutput.isEnabled }
+    var syphonStreamCount: Int { syphonOutput.streamCount }
+
+    func configureSyphon(enabled: Bool, configurations: [WindowInstanceID: FeatureConfiguration]) {
+        guard syphonOutput.isEnabled != enabled || syphonConfigurations != configurations else { return }
+        syphonConfigurations = configurations
+        syphonOutput.configure(enabled: enabled, configurations: configurations)
+        publishSyphon()
+    }
+
+    private func publishSyphon() {
+        guard syphonOutput.isEnabled else { return }
+        let crops = renderState?.crops ?? [:]
+        syphonOutput.publish(images: crops.mapValues(\.image), frames: crops.mapValues(\.frame), opacities: renderState?.opacities ?? [:])
+    }
+
+    func stopSyphon() { syphonOutput.stop() }
 
     func makeRenderView(for featureID: FeatureID) -> FeatureRenderView {
         // Compatibility entry point for the original single-window-per-feature path.
@@ -135,6 +156,7 @@ final class SharedRenderer {
         }
 
         renderState = RenderState(crops: crops, opacities: opacities)
+        publishSyphon()
         discardReleasedViews()
         for (windowID, weakView) in renderViews {
             guard let view = weakView.value else { continue }
@@ -146,6 +168,7 @@ final class SharedRenderer {
     func clear() {
         renderState = nil
         latestTimestamp = nil
+        publishSyphon()
         discardReleasedViews()
         for weakView in renderViews.values {
             guard let view = weakView.value else { continue }
@@ -171,6 +194,7 @@ final class SharedRenderer {
             crops: retained,
             opacities: Dictionary(uniqueKeysWithValues: retained.keys.map { ($0, CGFloat(1)) })
         )
+        publishSyphon()
         for (windowID, weakView) in renderViews {
             guard let view = weakView.value else { continue }
             view.alphaValue = retained[windowID] == nil ? 0 : 1

@@ -124,6 +124,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         terminalController?.stop()
+        renderer?.stopSyphon()
         cameraCapture?.stop()
         windowManager.resetPresentation()
     }
@@ -312,6 +313,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 }
             }
             .store(in: &subscriptions)
+        appState.$syphonEnabled
+            .dropFirst()
+            .sink { [weak self] _ in Task { @MainActor [weak self] in self?.applyLatestDelivery() } }
+            .store(in: &subscriptions)
         appState.$configurationsByWindowID
             .dropFirst()
             .sink { [weak self] _ in
@@ -386,6 +391,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
 
     private func applyLatestDelivery() {
+        renderer?.configureSyphon(enabled: appState.syphonEnabled, configurations: appState.configurationsByWindowID)
         guard appState.isLive, let delivery = latestDelivery else {
             windowManager.pausePresentation(configurations: appState.configurationsByWindowID, showAll: appState.showAll)
             return

@@ -65,6 +65,11 @@
 			A1000000000000000000003F /* TerminalKeyParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000045 /* TerminalKeyParserTests.swift */; };
 			A10000000000000000000040 /* TerminalMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000046 /* TerminalMenuController.swift */; };
 			A10000000000000000000041 /* ControlIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000047 /* ControlIntegrationTests.swift */; };
+        S10000000000000000000001 = {isa = PBXBuildFile; fileRef = S20000000000000000000001; };
+        S10000000000000000000002 = {isa = PBXBuildFile; fileRef = S20000000000000000000001; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+        S10000000000000000000003 = {isa = PBXBuildFile; fileRef = S30000000000000000000002; };
+        S10000000000000000000004 = {isa = PBXBuildFile; fileRef = S30000000000000000000003; };
+        S10000000000000000000005 = {isa = PBXBuildFile; fileRef = S20000000000000000000001; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +80,8 @@
 				remoteGlobalIDString = E10000000000000000000002;
 				remoteInfo = BlobbyCam;
 			};
+        S40000000000000000000001 = {isa = PBXContainerItemProxy; containerPortal = S30000000000000000000001; proxyType = 1; remoteGlobalIDString = 8DC2EF4F0486A6940098B216; remoteInfo = Syphon; };
+        S40000000000000000000002 = {isa = PBXContainerItemProxy; containerPortal = S30000000000000000000001; proxyType = 2; remoteGlobalIDString = 8DC2EF5B0486A6940098B216; remoteInfo = Syphon; };
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -135,17 +142,23 @@
 			B10000000000000000000045 /* TerminalKeyParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalKeyParserTests.swift; sourceTree = "<group>"; };
 			B10000000000000000000046 /* TerminalMenuController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalMenuController.swift; sourceTree = "<group>"; };
 			B10000000000000000000047 /* ControlIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlIntegrationTests.swift; sourceTree = "<group>"; };
+        S30000000000000000000001 = {isa = PBXFileReference; lastKnownFileType = wrapper.pb-project; path = Vendor/Syphon/Syphon.xcodeproj; sourceTree = SOURCE_ROOT; };
+        S30000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyphonOutput.swift; sourceTree = "<group>"; };
+        S30000000000000000000003 = {isa = PBXFileReference; lastKnownFileType = text; path = BlobbyCam/Resources/Syphon-LICENSE.txt; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-			F10000000000000000000001 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000003 /* AppKit.framework in Frameworks */, A10000000000000000000016 /* AVFoundation.framework in Frameworks */, A1000000000000000000001D /* Vision.framework in Frameworks */, A1000000000000000000002C /* CoreImage.framework in Frameworks */, A1000000000000000000002D /* Metal.framework in Frameworks */, A1000000000000000000002E /* MetalKit.framework in Frameworks */, ); runOnlyForDeploymentPostprocessing = 0; };
-			F10000000000000000000002 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000004 /* XCTest.framework in Frameworks */, A10000000000000000000006 /* AppKit.framework in Test Frameworks */, A10000000000000000000017 /* AVFoundation.framework in Test Frameworks */, A1000000000000000000001E /* Vision.framework in Test Frameworks */, A1000000000000000000002F /* CoreImage.framework in Test Frameworks */, A10000000000000000000030 /* Metal.framework in Test Frameworks */, A10000000000000000000031 /* MetalKit.framework in Test Frameworks */, ); runOnlyForDeploymentPostprocessing = 0; };
+			F10000000000000000000001 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (
+                S10000000000000000000001,A10000000000000000000003 /* AppKit.framework in Frameworks */, A10000000000000000000016 /* AVFoundation.framework in Frameworks */, A1000000000000000000001D /* Vision.framework in Frameworks */, A1000000000000000000002C /* CoreImage.framework in Frameworks */, A1000000000000000000002D /* Metal.framework in Frameworks */, A1000000000000000000002E /* MetalKit.framework in Frameworks */, ); runOnlyForDeploymentPostprocessing = 0; };
+			F10000000000000000000002 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (S10000000000000000000005, A10000000000000000000004 /* XCTest.framework in Frameworks */, A10000000000000000000006 /* AppKit.framework in Test Frameworks */, A10000000000000000000017 /* AVFoundation.framework in Test Frameworks */, A1000000000000000000001E /* Vision.framework in Test Frameworks */, A1000000000000000000002F /* CoreImage.framework in Test Frameworks */, A10000000000000000000030 /* Metal.framework in Test Frameworks */, A10000000000000000000031 /* MetalKit.framework in Test Frameworks */, ); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 			G10000000000000000000001 = {
 				isa = PBXGroup;
 				children = (
+                S30000000000000000000001,
+                S30000000000000000000003,
 					G10000000000000000000002 /* BlobbyCam */,
 					G10000000000000000000003 /* BlobbyCamTests */,
 					G10000000000000000000004 /* Products */,
@@ -262,6 +275,7 @@
 				sourceTree = "<group>";
 				children = (
 					B10000000000000000000038 /* SharedRenderer.swift */,
+                    S30000000000000000000002,
 					B10000000000000000000039 /* CoreImageCropRenderer.swift */,
 				);
 			};
@@ -287,6 +301,7 @@
 					B10000000000000000000046 /* TerminalMenuController.swift */,
 				);
 			};
+        S50000000000000000000001 = {isa = PBXGroup; name = Products; sourceTree = "<group>"; children = (S20000000000000000000001, ); };
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -304,9 +319,9 @@
 			E10000000000000000000002 /* BlobbyCam */ = {
 				isa = PBXNativeTarget;
 				buildConfigurationList = H10000000000000000000001 /* Build configuration list for PBXNativeTarget "BlobbyCam" */;
-				buildPhases = (F10000000000000000000001 /* Frameworks */, F10000000000000000000003 /* Sources */, F10000000000000000000005 /* Resources */, );
+				buildPhases = (F10000000000000000000001 /* Frameworks */, F10000000000000000000003 /* Sources */, F10000000000000000000005 /* Resources */, S60000000000000000000001 /* Embed Frameworks */, );
 				buildRules = ();
-				dependencies = ();
+				dependencies = (S70000000000000000000001, );
 				name = BlobbyCam;
 				productName = BlobbyCam;
 				productReference = B10000000000000000000005 /* BlobbyCam.app */;
@@ -314,6 +329,12 @@
 			};
 /* End PBXNativeTarget section */
 
+/* Begin PBXReferenceProxy section */
+        S20000000000000000000001 = {isa = PBXReferenceProxy; fileType = wrapper.framework; path = Syphon.framework; remoteRef = S40000000000000000000002; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXReferenceProxy section */
+/* Begin PBXCopyFilesBuildPhase section */
+        S60000000000000000000001 = {isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 10; files = (S10000000000000000000002, ); name = "Embed Frameworks"; runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXCopyFilesBuildPhase section */
 /* Begin PBXProject section */
 			D10000000000000000000001 /* Project object */ = {
 				isa = PBXProject;
@@ -335,12 +356,13 @@
 				productRefGroup = G10000000000000000000004 /* Products */;
 				projectDirPath = "";
 				projectRoot = "";
+                projectReferences = ({ProductGroup = S50000000000000000000001; ProjectRef = S30000000000000000000001; }, );
 				targets = (E10000000000000000000002 /* BlobbyCam */, E10000000000000000000001 /* BlobbyCamTests */, );
 			};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-			F10000000000000000000005 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000005 /* Assets.xcassets in Resources */, ); runOnlyForDeploymentPostprocessing = 0; };
+			F10000000000000000000005 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000005 /* Assets.xcassets in Resources */, S10000000000000000000004, ); runOnlyForDeploymentPostprocessing = 0; };
 			F10000000000000000000006 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXResourcesBuildPhase section */
 
@@ -365,6 +387,7 @@
 				A10000000000000000000028 /* FeatureWindowManager.swift in Sources */,
 				A1000000000000000000002A /* ScreenMapper.swift in Sources */,
 				A10000000000000000000032 /* SharedRenderer.swift in Sources */,
+                S10000000000000000000003,
 				A10000000000000000000033 /* CoreImageCropRenderer.swift in Sources */,
 				A10000000000000000000034 /* FeatureRenderView.swift in Sources */,
 				A10000000000000000000037 /* BlobbyTheme.swift in Sources */,
@@ -381,6 +404,7 @@
 
 /* Begin PBXTargetDependency section */
 			I10000000000000000000001 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = E10000000000000000000002 /* BlobbyCam */; targetProxy = C10000000000000000000001 /* PBXContainerItemProxy */; };
+        S70000000000000000000001 = {isa = PBXTargetDependency; name = Syphon; targetProxy = S40000000000000000000001; };
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */

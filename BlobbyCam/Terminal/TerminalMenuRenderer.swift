@@ -105,8 +105,7 @@ struct TerminalMenuRenderer {
         var lines = [
             border,
             box(centered("D O D O N . O N E   —   B L O B B Y   C A M", width: contentWidth), width: contentWidth),
-            box(" MAIN MENU  |  CAMERA: \(snapshot.cameraStatus)", width: contentWidth),
-            section("GLOBAL", width: contentWidth)
+            box(" MAIN MENU  |  CAMERA: \(snapshot.cameraStatus)", width: contentWidth)
         ]
 
         lines.append(menuRow(0, "LIVE", snapshot.isLive ? "ON" : "OFF", active: snapshot.isLive, model: model, width: contentWidth, rainbow: snapshot.isLive))
@@ -116,8 +115,8 @@ struct TerminalMenuRenderer {
         lines.append(menuRow(4, "SMOOTHING", decimal(snapshot.smoothing), active: false, model: model, width: contentWidth))
         lines.append(menuRow(5, "AUTO CROP SCALE", snapshot.autoCropScale ? "ON" : "OFF", active: snapshot.autoCropScale, model: model, width: contentWidth))
         lines.append(menuRow(6, "HIDE UI BAR", snapshot.windowsByID.values.allSatisfy(\.hidesUIBar) ? "ON" : "OFF", active: snapshot.windowsByID.values.allSatisfy(\.hidesUIBar), model: model, width: contentWidth))
-        lines.append(menuRow(7, "RESET ALL", "ENTER", active: false, model: model, width: contentWidth))
-        lines.append(section("FEATURE WINDOWS", width: contentWidth))
+        lines.append(menuRow(7, "SYPHON OUTPUT", snapshot.syphonEnabled ? "ON" : "OFF", active: snapshot.syphonEnabled, model: model, width: contentWidth))
+        lines.append(menuRow(8, "RESET ALL", "ENTER", active: false, model: model, width: contentWidth))
 
         for (offset, featureID) in FeatureID.allCases.enumerated() {
             let windows = snapshot.windowIDs(for: featureID).compactMap(snapshot.window(for:))
@@ -136,14 +135,14 @@ struct TerminalMenuRenderer {
         }
 
         lines.append(menuRow(
-            14,
+            15,
             snapshot.goofyUIVisible ? "HIDE GOOFY UI" : "SHOW GOOFY UI",
             snapshot.goofyUIVisible ? "ON" : "OFF",
             active: snapshot.goofyUIVisible,
             model: model,
             width: contentWidth
         ))
-        lines.append(menuRow(15, "QUIT", "ENTER", active: false, model: model, width: contentWidth))
+        lines.append(menuRow(16, "QUIT", "ENTER", active: false, model: model, width: contentWidth))
         let help = contentWidth < 44
             ? " ↑/↓ MOVE  ←/→ CHANGE  ENTER: WINDOWS"
             : " ↑/↓ SELECT  ←/→ CHANGE  ENTER: WINDOWS"
@@ -316,7 +315,7 @@ struct TerminalMenuRenderer {
     }
 
     private func homeSelectedLine(_ index: Int) -> Int {
-        index < 8 ? 4 + index : 5 + index
+        3 + index
     }
 
     private func addFiller(to lines: inout [String], targetHeight: Int, contentWidth: Int, footerCount: Int) {

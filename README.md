@@ -13,8 +13,9 @@ The primary control surface is an ASCII menu in Terminal. The optional **Goofy U
 - macOS 14 or later
 - A webcam and camera permission
 - Full Xcode installed (current development build verified with Xcode 27)
+- Xcode Metal Toolchain for source builds of the bundled Syphon framework
 
-No package manager, web runtime, account, or third-party runtime dependency is required.
+No package manager, web runtime, or account is required. The official BSD-licensed Syphon framework is bundled in the app; users of a packaged app do not need Xcode or Metal Toolchain.
 
 ## Run locally
 
@@ -50,6 +51,26 @@ Blobby Cam requests camera access and starts **LIVE** automatically. The camera 
 
 FREEZE FRAME holds that window's last crop while the others stay live. A frozen window remains visible if LIVE is switched OFF; ordinary feature windows hide. `SHOW GOOFY UI` opens the optional graphical menu.
 
+## Projector mapping via Syphon
+
+1. Launch Blobby Cam and turn **SYPHON OUTPUT** ON in Terminal or Goofy UI. It defaults to OFF; RESET turns it OFF.
+2. In Ghost Arcade, open **Media Library → SRC → Syphon In**, then **Refresh**.
+3. Select a source such as `Blobby / MOUTH / 1` and use it in a layer. Each enabled Blobby window copy has its own source. Arrange, duplicate, mask, and apply effects in Ghost; send Ghost's output to the projector on your extended display.
+
+Streams contain video only, without native titlebars or window shadows. They reflect each copy's crop, mirror, FREEZE FRAME, and aspect-fill framing. Names use permanent instance serials, so deleting another copy does not rename surviving sources. OFF/closing a copy removes its source; losing detection clears its pixels. HIDE ALL hides local windows while continuing live Syphon output. With LIVE OFF, frozen crops remain available and ordinary crops clear. Turning Syphon OFF stops all senders.
+
+Output follows each window's aspect ratio, up to 1024 pixels on its longest side. GPU output textures are allocated only for connected receivers and reused until dimensions change. Copies share the existing camera/Vision pipeline. Actual Ghost Arcade orientation, reconnect behavior, and performance with many connected layers still require a live check.
+
+### Building Syphon from source
+
+The official source is pinned in `Vendor/Syphon`; provenance and license are recorded alongside it. On Xcode installations without the shader compiler, download Apple's component once:
+
+```sh
+xcodebuild -downloadComponent MetalToolchain
+```
+
+The compiler component is about 839 MB on the tested Xcode version. It is a development requirement and is not included in the app ZIP.
+
 ## Build and test
 
 ```sh
@@ -61,7 +82,7 @@ Xcode build output is ignored by Git. The local launcher stores its build under 
 
 ## Small local preview package
 
-The Release app is about 3.2 MB on the tested Mac, and its ZIP is about 872 KB. The multi-gigabyte `.build` folder is Xcode's local cache and is not part of the app or Git repository.
+The Release app is about 3.7 MB on the tested Mac, and its ZIP is about 1.0 MB. The multi-gigabyte `.build` folder is Xcode's local cache and is not part of the app or Git repository.
 
 ```sh
 ./scripts/package-preview.sh

@@ -2,6 +2,14 @@
 
 Date: 2026-09-26
 
+## 2026-10-04 — optional Syphon output
+
+- Backup checkpoint: `e927b71`; development branch: `dodon/syphon-output`. Syphon defaults OFF and is controlled from existing TUI/Goofy UI. Native window and tracking behavior is preserved.
+- Official upstream source pinned to `f4761677a45b8034a3c2069ec0f3d2553da81fba`, built as an embedded framework using the existing Metal device/queue/CIContext. Separate stable server per enabled instance; disconnected sources allocate no output texture. Dimensions are bounded to 1024 on the longest side, with two command buffers maximum in flight.
+- Full Xcode gate: **119 passed, 0 failed, 0 skipped**, `.build/DerivedData-Syphon/Logs/Test/Test-BlobbyCam-2026.10.04_19-32-35-+0300.xcresult`. Added real Metal sender/client tests for late attachment to a held frame, pixel delivery, clearing on loss, twenty stream lifecycle, surviving UUID stability, and output size bounds. Compact home menu including Syphon fits 80×24 with navigation guide.
+- Release package: **3.7 MB app / 1.0 MB ZIP**. Official Apple Metal Toolchain download was authorized and completed (~839 MB); it is not bundled.
+- **User live check pending:** select a Blobby source in Ghost Arcade → SRC → Syphon In; check image orientation and mirror, independent copies/freeze, reconnect after OFF/ON, HIDE ALL with output live, and sustained GPU/memory load with many layers. No Ghost project was edited or saved. Automated pixel tests do not certify Ghost's orientation or projector output.
+
 ## 2026-10-04 — HIDE UI BAR
 
 - Added one `hidesUIBar` property per `FeatureConfiguration`. Global controls in TUI/Goofy UI apply it to all instances; deep settings change one instance. There is no separate global override. New copies inherit it; RESET restores visible bars.

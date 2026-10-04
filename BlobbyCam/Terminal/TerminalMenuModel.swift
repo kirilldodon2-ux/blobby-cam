@@ -26,6 +26,7 @@ enum TerminalFeatureField: CaseIterable, Equatable {
 
 enum TerminalMenuAction: Equatable {
     case toggleLive
+    case toggleSyphon
     case toggleAllUIBars
     case toggleAll
     case toggleFollow
@@ -83,6 +84,7 @@ struct TerminalMenuSnapshot: Equatable {
     let showAll: Bool
     let follow: Bool
     let autoCropScale: Bool
+    let syphonEnabled: Bool
     let mirror: Bool
     let smoothing: CGFloat
     let cameraStatus: String
@@ -98,6 +100,7 @@ struct TerminalMenuSnapshot: Equatable {
         showAll: Bool,
         follow: Bool,
         autoCropScale: Bool = false,
+        syphonEnabled: Bool = false,
         mirror: Bool,
         smoothing: CGFloat,
         cameraStatus: String = "IDLE",
@@ -110,6 +113,7 @@ struct TerminalMenuSnapshot: Equatable {
         self.isLive = isLive
         self.showAll = showAll
         self.follow = follow
+        self.syphonEnabled = syphonEnabled
         self.autoCropScale = autoCropScale
         self.mirror = mirror
         self.smoothing = smoothing
@@ -147,6 +151,7 @@ struct TerminalMenuSnapshot: Equatable {
         isLive = appState.isLive
         showAll = appState.showAll
         follow = appState.follow
+        syphonEnabled = appState.syphonEnabled
         autoCropScale = appState.autoCropScale
         mirror = appState.mirror
         smoothing = appState.smoothing
@@ -190,8 +195,8 @@ struct TerminalMenuModel {
     private(set) var selectedFeatureField: TerminalFeatureField = .enabled
     private(set) var selectedWindowIndex = 0
 
-    static let homeItemCount = 16
-    static let firstFeatureIndex = 8
+    static let homeItemCount = 17
+    static let firstFeatureIndex = 9
 
     var isShowingWindowList: Bool { selectedFeature != nil && !isEditingWindowSettings }
     var isShowingFeatureDetails: Bool { selectedFeature != nil && isEditingWindowSettings }
@@ -366,8 +371,9 @@ struct TerminalMenuModel {
         case 4: return .adjustSmoothing(direction)
         case 5: return .toggleAutoCropScale
         case 6: return .toggleAllUIBars
-        case 14: return .toggleGoofyUI
-        case 8...13: return .toggleFeature(FeatureID.allCases[selectedHomeIndex - Self.firstFeatureIndex])
+        case 7: return .toggleSyphon
+        case 15: return .toggleGoofyUI
+        case 9...14: return .toggleFeature(FeatureID.allCases[selectedHomeIndex - Self.firstFeatureIndex])
         default: return nil
         }
     }
@@ -381,8 +387,9 @@ struct TerminalMenuModel {
         case 4: return nil
         case 5: return .toggleAutoCropScale
         case 6: return .toggleAllUIBars
-        case 7: return .resetAll
-        case 8...13:
+        case 7: return .toggleSyphon
+        case 8: return .resetAll
+        case 9...14:
             let featureID = FeatureID.allCases[selectedHomeIndex - Self.firstFeatureIndex]
             selectedFeature = featureID
             selectedWindowInstanceID = nil
@@ -390,8 +397,8 @@ struct TerminalMenuModel {
             selectedWindowIndex = 0
             selectedFeatureField = .enabled
             return nil
-        case 14: return .toggleGoofyUI
-        case 15: return .quit
+        case 15: return .toggleGoofyUI
+        case 16: return .quit
         default: return nil
         }
     }

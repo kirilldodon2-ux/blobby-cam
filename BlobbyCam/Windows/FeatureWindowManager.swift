@@ -246,6 +246,9 @@ final class FeatureWindowManager {
         }
         let states = smoother.process(snapshot, configurations: configurations, smoothing: smoothing)
 
+        if !showAll, renderer?.syphonEnabled == true {
+            renderer?.update(frame: frame, featureStates: states, configurations: configurations, requestedMirror: mirror, autoCropScale: autoCropScale)
+        }
         guard showAll else {
             hideAll()
             return

@@ -45,6 +45,7 @@ final class AppState: ObservableObject {
 
     @Published private(set) var isLive = false
     @Published private(set) var showAll = true
+    @Published private(set) var syphonEnabled = false
     @Published private(set) var follow = false
     @Published private(set) var autoCropScale = false
     @Published private(set) var smoothing = AppState.defaultSmoothing
@@ -80,6 +81,8 @@ final class AppState: ObservableObject {
     func setUIBarHidden(_ hidden: Bool, for id: WindowInstanceID) {
         updateConfiguration(for: id) { $0.hidesUIBar = hidden }
     }
+
+    func setSyphonEnabled(_ enabled: Bool) { syphonEnabled = enabled }
 
     func setShowAll(_ showAll: Bool) {
         self.showAll = showAll
@@ -322,6 +325,7 @@ final class AppState: ObservableObject {
     func reset() {
         isLive = false
         showAll = true
+        syphonEnabled = false
         follow = false
         autoCropScale = false
         smoothing = Self.defaultSmoothing
