@@ -5,6 +5,7 @@ final class FeaturePanel: NSPanel, NSWindowDelegate {
     private(set) var windowID: WindowInstanceID
     var featureID: FeatureID { windowID.featureID }
     private(set) var isUserResizing = false
+    private(set) var hidesUIBar = false
     var onUserResize: ((WindowInstanceID, NSSize) -> Void)?
     var onUserClose: ((WindowInstanceID) -> Void)?
 
@@ -49,6 +50,20 @@ final class FeaturePanel: NSPanel, NSWindowDelegate {
 
     func installRenderView(_ view: NSView) {
         contentView = view
+    }
+
+    func setUIBarHidden(_ hidden: Bool) {
+        guard hidden != hidesUIBar else { return }
+        // Keep the video size and bottom-left position stable while adding/removing native chrome.
+        let size = contentView?.frame.size ?? frame.size
+        let origin = frame.origin
+        hidesUIBar = hidden
+        styleMask = hidden
+            ? [.resizable, .nonactivatingPanel]
+            : [.titled, .closable, .miniaturizable, .resizable, .nonactivatingPanel]
+        isMovableByWindowBackground = hidden
+        setContentSize(size)
+        setFrameOrigin(origin)
     }
 
     func prepareForReuse(as windowID: WindowInstanceID) {

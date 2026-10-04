@@ -185,12 +185,9 @@ final class ControlIntegrationTests: XCTestCase {
         controller.handle(.enter)
         XCTAssertFalse(state.showAll)
 
-        controller.handle(.down)
-        controller.handle(.down)
-        controller.handle(.down)
-        controller.handle(.down)
-        controller.handle(.down)
-        controller.handle(.down)
+        while controller.model.selectedHomeIndex < TerminalMenuModel.firstFeatureIndex {
+            controller.handle(.down)
+        }
         controller.handle(.enter)
         XCTAssertEqual(controller.model.selectedFeature, .leftEye)
 

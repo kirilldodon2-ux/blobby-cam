@@ -223,6 +223,20 @@ private struct FeatureInstanceControlRow: View {
     private var instanceSettings: some View {
         VStack(alignment: .leading, spacing: 9) {
             Button {
+                appState.setUIBarHidden(!configuration.hidesUIBar, for: instanceID)
+            } label: {
+                Text("HIDE UI BAR: \(configuration.hidesUIBar ? "ON" : "OFF")")
+                    .font(.system(size: 8, weight: .black, design: .rounded))
+                    .frame(maxWidth: .infinity, minHeight: 36)
+                    .foregroundStyle(configuration.hidesUIBar ? BlobbyTheme.paper : BlobbyTheme.ink)
+                    .background(configuration.hidesUIBar ? BlobbyTheme.base : .white, in: RoundedRectangle(cornerRadius: 8))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(BlobbyTheme.ink, lineWidth: 1.5))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("\(title) hide titlebar")
+            .accessibilityValue(configuration.hidesUIBar ? "On" : "Off")
+
+            Button {
                 appState.setFeatureFrozen(!configuration.isFrozen, for: instanceID)
             } label: {
                 Text(configuration.isFrozen ? "UNFREEZE FRAME" : "FREEZE FRAME")

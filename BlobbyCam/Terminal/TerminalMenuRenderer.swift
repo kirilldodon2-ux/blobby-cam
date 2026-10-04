@@ -115,7 +115,8 @@ struct TerminalMenuRenderer {
         lines.append(menuRow(3, "MIRROR", snapshot.mirror ? "ON" : "OFF", active: snapshot.mirror, model: model, width: contentWidth))
         lines.append(menuRow(4, "SMOOTHING", decimal(snapshot.smoothing), active: false, model: model, width: contentWidth))
         lines.append(menuRow(5, "AUTO CROP SCALE", snapshot.autoCropScale ? "ON" : "OFF", active: snapshot.autoCropScale, model: model, width: contentWidth))
-        lines.append(menuRow(6, "RESET ALL", "ENTER", active: false, model: model, width: contentWidth))
+        lines.append(menuRow(6, "HIDE UI BAR", snapshot.windowsByID.values.allSatisfy(\.hidesUIBar) ? "ON" : "OFF", active: snapshot.windowsByID.values.allSatisfy(\.hidesUIBar), model: model, width: contentWidth))
+        lines.append(menuRow(7, "RESET ALL", "ENTER", active: false, model: model, width: contentWidth))
         lines.append(section("FEATURE WINDOWS", width: contentWidth))
 
         for (offset, featureID) in FeatureID.allCases.enumerated() {
@@ -125,7 +126,7 @@ struct TerminalMenuRenderer {
             let status = enabledCount == 0 ? "OFF" : (enabledCount == count ? "ON" : "MIXED")
             let value = count == 0 ? "NO DATA" : "\(status)  ·  \(count)"
             lines.append(menuRow(
-                7 + offset,
+                TerminalMenuModel.firstFeatureIndex + offset,
                 featureID.windowTitle,
                 value,
                 active: enabledCount > 0,
@@ -135,14 +136,14 @@ struct TerminalMenuRenderer {
         }
 
         lines.append(menuRow(
-            13,
+            14,
             snapshot.goofyUIVisible ? "HIDE GOOFY UI" : "SHOW GOOFY UI",
             snapshot.goofyUIVisible ? "ON" : "OFF",
             active: snapshot.goofyUIVisible,
             model: model,
             width: contentWidth
         ))
-        lines.append(menuRow(14, "QUIT", "ENTER", active: false, model: model, width: contentWidth))
+        lines.append(menuRow(15, "QUIT", "ENTER", active: false, model: model, width: contentWidth))
         let help = contentWidth < 44
             ? " ↑/↓ MOVE  ←/→ CHANGE  ENTER: WINDOWS"
             : " ↑/↓ SELECT  ←/→ CHANGE  ENTER: WINDOWS"
@@ -265,6 +266,8 @@ struct TerminalMenuRenderer {
             value = feature.map { $0.isEnabled ? "ON" : "OFF" } ?? "NO DATA"
         case .freeze:
             value = feature.map { $0.isFrozen ? "ON" : "OFF" } ?? "NO DATA"
+        case .hideUIBar:
+            value = feature.map { $0.hidesUIBar ? "ON" : "OFF" } ?? "NO DATA"
         case .sizeReset:
             if let size = feature?.windowSize {
                 value = "\(integer(size.width))x\(integer(size.height)) PT / ENTER=RESET"
@@ -292,6 +295,7 @@ struct TerminalMenuRenderer {
             && model.selectedFeatureField == field
         let active = (field == .enabled && feature?.isEnabled == true)
             || (field == .freeze && feature?.isFrozen == true)
+            || (field == .hideUIBar && feature?.hidesUIBar == true)
         return rowBox(label: fieldLabel(field), value: value, selected: selected, active: active, width: width)
     }
 
@@ -299,6 +303,7 @@ struct TerminalMenuRenderer {
         switch field {
         case .enabled: "ENABLED"
         case .freeze: "FREEZE FRAME"
+        case .hideUIBar: "HIDE UI BAR"
         case .sizeReset: "WINDOW SIZE"
         case .windowX: "WINDOW X"
         case .windowY: "WINDOW Y"
@@ -311,7 +316,7 @@ struct TerminalMenuRenderer {
     }
 
     private func homeSelectedLine(_ index: Int) -> Int {
-        index < 7 ? 4 + index : 5 + index
+        index < 8 ? 4 + index : 5 + index
     }
 
     private func addFiller(to lines: inout [String], targetHeight: Int, contentWidth: Int, footerCount: Int) {

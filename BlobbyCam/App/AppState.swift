@@ -68,6 +68,19 @@ final class AppState: ObservableObject {
         self.isLive = isLive
     }
 
+    /// The global control applies a value to all instances; there is no second override state.
+    var allUIBarsHidden: Bool {
+        !configurationsByWindowID.isEmpty && configurationsByWindowID.values.allSatisfy(\.hidesUIBar)
+    }
+
+    func setAllUIBarsHidden(_ hidden: Bool) {
+        for id in allWindowIDs() { setUIBarHidden(hidden, for: id) }
+    }
+
+    func setUIBarHidden(_ hidden: Bool, for id: WindowInstanceID) {
+        updateConfiguration(for: id) { $0.hidesUIBar = hidden }
+    }
+
     func setShowAll(_ showAll: Bool) {
         self.showAll = showAll
     }

@@ -46,6 +46,8 @@ Blobby Cam requests camera access and starts **LIVE** automatically. The camera 
 
 **AUTO FOLLOW** defaults to OFF: window positions stay where you put them while their video crops follow your features. **MIRROR** defaults to selfie orientation. **SMOOTHING** defaults to 0, so crop centers follow current detections. **AUTO CROP SCALE** defaults to OFF, keeping facial crop magnification steadier during expressions. Each feature starts with one window and can have up to 32, including a layout of 20 mouths. A new copy starts with the first window's current live image and settings; you can then resize and position every native window independently. Its ON/OFF, FREEZE FRAME, crop zoom/pan/padding, and detection threshold can also be adjusted independently. The eye crop zoom defaults to 0.50×.
 
+**HIDE UI BAR** in either menu hides the native titlebar and traffic-light buttons for all feature windows. The same control in each window's settings changes only that copy. Bars are visible by default; RESET restores them. With a bar hidden, drag the video to move the window; its resizable native style stays enabled. The video size and bottom-left position are preserved when toggling chrome.
+
 FREEZE FRAME holds that window's last crop while the others stay live. A frozen window remains visible if LIVE is switched OFF; ordinary feature windows hide. `SHOW GOOFY UI` opens the optional graphical menu.
 
 ## Build and test
@@ -59,7 +61,7 @@ Xcode build output is ignored by Git. The local launcher stores its build under 
 
 ## Small local preview package
 
-The Release app is about 3.2 MB on the tested Mac, and its ZIP is about 864 KB. The multi-gigabyte `.build` folder is Xcode's local cache and is not part of the app or Git repository.
+The Release app is about 3.2 MB on the tested Mac, and its ZIP is about 872 KB. The multi-gigabyte `.build` folder is Xcode's local cache and is not part of the app or Git repository.
 
 ```sh
 ./scripts/package-preview.sh

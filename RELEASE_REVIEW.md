@@ -1,25 +1,25 @@
 # Pre-release review
 
-Reviewed: 2026-09-27. This is a local source review, not a public GitHub release.
+Reviewed: 2026-10-04. This is a local source review, not a public GitHub release.
 
 ## Verified
 
 | Check | Result |
 |---|---|
-| Xcode Debug tests | PASS: 114 tests, 0 failures on 2026-09-27 (`QA_NOTES.md`) |
+| Xcode Debug tests | PASS: 116 tests, 0 failures on 2026-10-04 (`QA_NOTES.md`) |
 | Local unsigned Release build | PASS: Apple silicon/macOS, `CODE_SIGNING_ALLOWED=NO`, including window copies |
 | Xcode static analysis | PASS: Debug `xcodebuild analyze`, no diagnostics |
 | One native camera pipeline, six initial persistent AppKit panels plus copies | PASS: source audit and focused tests, including 20 mouth windows |
 | Git file hygiene | PASS: `.build`, Xcode user state, results, archives, logs, and credential files excluded |
 | Local developer launcher | PASS: `./blobby-cam` builds and execs the app; user has exercised live camera/TUI |
 | Preview script syntax and installer paths | PASS: both scripts pass `sh -n`; a fixture ZIP verified checksum checking, `--no-run` installation, launcher argument forwarding, and clear errors for a missing ZIP, changed ZIP, and repeat install. |
-| Small preview package | PASS: fresh 2026-09-27 unsigned arm64 app 3.2 MB, ZIP 864 KB. Checksum and project-local `--no-run` install passed; installed executable hash matched the Release build. `.build` is outside the archive. |
+| Small preview package | PASS: fresh 2026-10-04 unsigned arm64 app 3.2 MB, ZIP 872 KB. Package checksum passed. The installer path and executable hash were verified with the 2026-09-27 package. `.build` is outside the archive. |
 
 ## Before public GitHub release
 
 | Priority | Item | Acceptance |
 |---|---|---|
-| Blocker | Fresh live smoke after window-copy and close fix | Face and both hands stay correctly framed; 80×24 TUI guide remains visible; create/resize/close 20 mouth copies repeatedly without a crash. |
+| Blocker | Fresh live smoke after copies, close fix, and HIDE UI BAR | Face and both hands stay correctly framed; 80×24 TUI guide remains visible; create/resize/close 20 mouth copies repeatedly without a crash; hidden-bar video drag and edge resize work. |
 | Blocker | Ten-minute runtime check | Camera runs continuously, memory plateaus, and no feature window steals Terminal keyboard focus. Record numbers in `QA_NOTES.md`. |
 | Blocker | Distribution path | Choose a GitHub repository URL and deliver a signed/notarized app or a clearly documented source-only install. Test the exact one-command install on a clean Mac. |
 | Blocker | GitHub access | No remote is configured. `gh auth status` reports an invalid token for the active account; re-authenticate before creating a remote, pushing, or opening a PR. |

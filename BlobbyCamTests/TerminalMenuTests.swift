@@ -39,9 +39,10 @@ final class TerminalMenuTests: XCTestCase {
         XCTAssertEqual(action(atHomeIndex: 4, key: .left), .adjustSmoothing(-1))
         XCTAssertEqual(action(atHomeIndex: 4, key: .right), .adjustSmoothing(1))
         XCTAssertEqual(action(atHomeIndex: 5, key: .enter), .toggleAutoCropScale)
-        XCTAssertEqual(action(atHomeIndex: 6, key: .enter), .resetAll)
-        XCTAssertEqual(action(atHomeIndex: 13, key: .right), .toggleGoofyUI)
-        XCTAssertEqual(action(atHomeIndex: 14, key: .enter), .quit)
+        XCTAssertEqual(action(atHomeIndex: 6, key: .enter), .toggleAllUIBars)
+        XCTAssertEqual(action(atHomeIndex: 7, key: .enter), .resetAll)
+        XCTAssertEqual(action(atHomeIndex: 14, key: .right), .toggleGoofyUI)
+        XCTAssertEqual(action(atHomeIndex: 15, key: .enter), .quit)
         for (offset, featureID) in FeatureID.allCases.enumerated() {
             XCTAssertEqual(action(atHomeIndex: TerminalMenuModel.firstFeatureIndex + offset, key: .left), .toggleFeature(featureID))
             XCTAssertEqual(action(atHomeIndex: TerminalMenuModel.firstFeatureIndex + offset, key: .right), .toggleFeature(featureID))
@@ -64,7 +65,7 @@ final class TerminalMenuTests: XCTestCase {
 
     func testCompactTerminalKeepsSelectedFeatureRowAndNavigationHintsVisible() {
         var model = TerminalMenuModel()
-        for _ in 0..<9 { _ = model.handle(.down) } // NOSE
+        for _ in 0..<(TerminalMenuModel.firstFeatureIndex + 2) { _ = model.handle(.down) } // NOSE
         let frame = TerminalMenuRenderer().render(model: model, snapshot: makeSnapshot(), width: 40, height: 12)
         let lines = frame.components(separatedBy: "\n")
         XCTAssertEqual(lines.count, 12)
@@ -126,6 +127,10 @@ final class TerminalMenuTests: XCTestCase {
         _ = model.handle(.down, snapshot: snapshot)
         XCTAssertEqual(model.selectedFeatureField, .freeze)
         XCTAssertEqual(model.handle(.enter, snapshot: snapshot), .toggleWindowFreeze(windowID))
+        _ = model.handle(.down, snapshot: snapshot)
+        XCTAssertEqual(model.selectedFeatureField, .hideUIBar)
+        XCTAssertEqual(model.handle(.enter, snapshot: snapshot), .adjustWindow(windowID, .hideUIBar, 1))
+        XCTAssertEqual(model.handle(.left, snapshot: snapshot), .adjustWindow(windowID, .hideUIBar, -1))
         _ = model.handle(.down, snapshot: snapshot)
         XCTAssertEqual(model.selectedFeatureField, .sizeReset)
         XCTAssertEqual(model.handle(.enter, snapshot: snapshot), .resetWindowSize(windowID))

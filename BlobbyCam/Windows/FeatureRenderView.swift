@@ -9,6 +9,18 @@ final class FeatureRenderView: MTKView, MTKViewDelegate {
 
     override var isOpaque: Bool { false }
 
+    override var mouseDownCanMoveWindow: Bool {
+        (window as? FeaturePanel)?.hidesUIBar == true
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        if let panel = window as? FeaturePanel, panel.hidesUIBar {
+            panel.performDrag(with: event)
+        } else {
+            super.mouseDown(with: event)
+        }
+    }
+
     init(featureID: FeatureID, renderer: SharedRenderer, device: MTLDevice) {
         self.windowID = WindowInstanceID(featureID: featureID, serial: 1)
         self.renderer = renderer

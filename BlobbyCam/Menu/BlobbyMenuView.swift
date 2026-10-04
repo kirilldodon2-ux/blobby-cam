@@ -148,6 +148,10 @@ struct BlobbyMenuView: View {
                     .accessibilityLabel("Smoothing")
             }
             .frame(minHeight: BlobbyTheme.hitTargetHeight)
+
+            stateButton(title: "HIDE UI BAR", isOn: appState.allUIBarsHidden, accessibilityLabel: "Hide all feature window titlebars") {
+                appState.setAllUIBarsHidden(!appState.allUIBarsHidden)
+            }
         }
         .padding(12)
         .foregroundStyle(BlobbyTheme.ink)

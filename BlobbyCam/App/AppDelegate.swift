@@ -314,7 +314,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             .store(in: &subscriptions)
         appState.$configurationsByWindowID
             .dropFirst()
-            .sink { [weak self] _ in Task { @MainActor [weak self] in self?.applyLatestDelivery() } }
+            .sink { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    self.windowManager.applyWindowChrome(configurations: self.appState.configurationsByWindowID)
+                    self.applyLatestDelivery()
+                }
+            }
             .store(in: &subscriptions)
 
         cameraCapture?.$state

@@ -6,6 +6,7 @@ struct FeatureConfiguration: Equatable {
 
     var isEnabled: Bool
     var isFrozen: Bool = false
+    var hidesUIBar: Bool = false
     var windowScale: CGFloat
     /// Native drag resize overrides the scale preset until a preset or RESET is chosen.
     var windowSizeOverride: CGSize? = nil

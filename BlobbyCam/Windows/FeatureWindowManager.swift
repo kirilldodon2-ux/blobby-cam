@@ -230,6 +230,8 @@ final class FeatureWindowManager {
             return
         }
 
+        applyWindowChrome(configurations: configurations)
+
         guard isLive else {
             pausePresentation(configurations: configurations, showAll: showAll)
             return
@@ -447,6 +449,7 @@ final class FeatureWindowManager {
     }
 
     func pausePresentation(configurations: [WindowInstanceID: FeatureConfiguration], showAll: Bool) {
+        applyWindowChrome(configurations: configurations)
         smoother.reset()
         lastAppliedTimestamp = nil
         renderer?.retainFrozen(configurations: configurations)
@@ -459,6 +462,13 @@ final class FeatureWindowManager {
             } else {
                 hide(id)
             }
+        }
+    }
+
+    func applyWindowChrome(configurations: [WindowInstanceID: FeatureConfiguration]) {
+        for (id, configuration) in configurations {
+            guard let panel = panelsByWindowID[id], !panel.isUserResizing else { continue }
+            panel.setUIBarHidden(configuration.hidesUIBar)
         }
     }
 

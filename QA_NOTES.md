@@ -2,6 +2,13 @@
 
 Date: 2026-09-26
 
+## 2026-10-04 — HIDE UI BAR
+
+- Added one `hidesUIBar` property per `FeatureConfiguration`. Global controls in TUI/Goofy UI apply it to all instances; deep settings change one instance. There is no separate global override. New copies inherit it; RESET restores visible bars.
+- Existing `FeaturePanel` instances switch native style without being recreated. Content size and bottom-left position are preserved. Hidden-bar render views route a mouse drag to AppKit `performDrag`; resizable and nonactivating panel styles stay enabled.
+- Xcode: **116 passed, 0 failed, 0 skipped**, `.build/DerivedData-UIBar/Logs/Test/Test-BlobbyCam-2026.10.04_18-49-51-+0300.xcresult`. Tests cover repeated hide/restore, identity, geometry, independent copy override, inheritance/reset, and updated keyboard navigation. Release package rebuilt: 3.2 MB app / 872 KB ZIP.
+- Live check pending: drag the video and resize by the edges with no bar, toggle bars while frozen/LIVE OFF, and restore the red close button from both menus.
+
 ## 2026-09-27 — window copies and duplicate-close fix
 
 The user and Kristi checked the previous single-window build successfully. The new copies build has not yet received the same live camera check.

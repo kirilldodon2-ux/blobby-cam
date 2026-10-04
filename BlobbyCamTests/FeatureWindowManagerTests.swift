@@ -6,6 +6,56 @@ import XCTest
 
 @MainActor
 final class FeatureWindowManagerTests: XCTestCase {
+    func testChromeTogglePreservesPanelIdentityVideoSizeAndPosition() throws {
+        let manager = FeatureWindowManager()
+        let state = AppState()
+        let id = try XCTUnwrap(state.windowIDs(for: .mouth).first)
+        let panel = manager.panel(for: id)
+        manager.move(.mouth, to: NSPoint(x: 100, y: 140))
+        manager.resize(.mouth, to: NSSize(width: 340, height: 210))
+        let identity = ObjectIdentifier(panel)
+        let origin = panel.frame.origin
+        let size = panel.contentView?.frame.size
+        for _ in 0..<5 {
+            state.setUIBarHidden(true, for: id)
+            manager.applyWindowChrome(configurations: state.configurationsByWindowID)
+            XCTAssertTrue(panel.hidesUIBar)
+            XCTAssertFalse(panel.styleMask.contains(.titled))
+            XCTAssertTrue(panel.styleMask.contains(.resizable))
+            XCTAssertTrue(panel.styleMask.contains(.nonactivatingPanel))
+            XCTAssertTrue(panel.isMovableByWindowBackground)
+            XCTAssertFalse(panel.canBecomeKey)
+            XCTAssertEqual(panel.contentView?.frame.size, size)
+            XCTAssertEqual(panel.frame.origin, origin)
+            XCTAssertFalse(manager.panel(for: .nose).hidesUIBar)
+            state.setUIBarHidden(false, for: id)
+            manager.applyWindowChrome(configurations: state.configurationsByWindowID)
+            XCTAssertTrue(panel.styleMask.contains(.titled))
+            XCTAssertNotNil(panel.standardWindowButton(.closeButton))
+            XCTAssertEqual(panel.contentView?.frame.size, size)
+            XCTAssertEqual(panel.frame.origin, origin)
+            XCTAssertEqual(ObjectIdentifier(manager.panel(for: id)), identity)
+        }
+    }
+
+    func testGlobalChromeSettingAllowsIndependentCopyOverrideAndReset() throws {
+        let state = AppState()
+        XCTAssertFalse(state.allUIBarsHidden)
+        state.setWindowCount(3, for: .mouth)
+        let mouthIDs = state.windowIDs(for: .mouth)
+        state.setAllUIBarsHidden(true)
+        XCTAssertTrue(state.allUIBarsHidden)
+        state.setUIBarHidden(false, for: mouthIDs[1])
+        XCTAssertFalse(state.allUIBarsHidden)
+        XCTAssertEqual(state.configuration(for: mouthIDs[0])?.hidesUIBar, true)
+        XCTAssertEqual(state.configuration(for: mouthIDs[1])?.hidesUIBar, false)
+        state.setWindowCount(4, for: .mouth)
+        let newID = try XCTUnwrap(state.windowIDs(for: .mouth).last)
+        XCTAssertEqual(state.configuration(for: newID)?.hidesUIBar, true)
+        state.reset()
+        XCTAssertTrue(state.configurationsByWindowID.values.allSatisfy { !$0.hidesUIBar })
+    }
+
     func testCreatesSixDistinctPersistentPanels() {
         let manager = FeatureWindowManager()
 

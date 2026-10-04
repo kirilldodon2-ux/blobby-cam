@@ -13,6 +13,7 @@ enum TerminalKey: Equatable {
 enum TerminalFeatureField: CaseIterable, Equatable {
     case enabled
     case freeze
+    case hideUIBar
     case sizeReset
     case windowX
     case windowY
@@ -25,6 +26,7 @@ enum TerminalFeatureField: CaseIterable, Equatable {
 
 enum TerminalMenuAction: Equatable {
     case toggleLive
+    case toggleAllUIBars
     case toggleAll
     case toggleFollow
     case toggleAutoCropScale
@@ -50,6 +52,7 @@ enum TerminalMenuAction: Equatable {
 struct TerminalFeatureSnapshot: Equatable {
     let isEnabled: Bool
     let isFrozen: Bool
+    let hidesUIBar: Bool
     let windowSize: CGSize
     let windowOffsetX: CGFloat
     let windowOffsetY: CGFloat
@@ -62,6 +65,7 @@ struct TerminalFeatureSnapshot: Equatable {
     init(configuration: FeatureConfiguration, windowSize: CGSize) {
         isEnabled = configuration.isEnabled
         isFrozen = configuration.isFrozen
+        hidesUIBar = configuration.hidesUIBar
         self.windowSize = windowSize
         windowOffsetX = configuration.windowOffsetX
         windowOffsetY = configuration.windowOffsetY
@@ -186,8 +190,8 @@ struct TerminalMenuModel {
     private(set) var selectedFeatureField: TerminalFeatureField = .enabled
     private(set) var selectedWindowIndex = 0
 
-    static let homeItemCount = 15
-    static let firstFeatureIndex = 7
+    static let homeItemCount = 16
+    static let firstFeatureIndex = 8
 
     var isShowingWindowList: Bool { selectedFeature != nil && !isEditingWindowSettings }
     var isShowingFeatureDetails: Bool { selectedFeature != nil && isEditingWindowSettings }
@@ -323,6 +327,8 @@ struct TerminalMenuModel {
                 return .toggleWindowEnabled(windowID)
             case .freeze:
                 return .toggleWindowFreeze(windowID)
+            case .hideUIBar:
+                return .adjustWindow(windowID, .hideUIBar, 1)
             case .sizeReset:
                 return .resetWindowSize(windowID)
             case .windowX, .windowY, .cropZoom, .panX, .panY, .padding, .detection:
@@ -342,6 +348,8 @@ struct TerminalMenuModel {
             return .toggleWindowEnabled(windowID)
         case .freeze:
             return .toggleWindowFreeze(windowID)
+        case .hideUIBar:
+            return .adjustWindow(windowID, .hideUIBar, direction)
         case .sizeReset:
             return nil
         case .windowX, .windowY, .cropZoom, .panX, .panY, .padding, .detection:
@@ -357,8 +365,9 @@ struct TerminalMenuModel {
         case 3: return .toggleMirror
         case 4: return .adjustSmoothing(direction)
         case 5: return .toggleAutoCropScale
-        case 13: return .toggleGoofyUI
-        case 7...12: return .toggleFeature(FeatureID.allCases[selectedHomeIndex - Self.firstFeatureIndex])
+        case 6: return .toggleAllUIBars
+        case 14: return .toggleGoofyUI
+        case 8...13: return .toggleFeature(FeatureID.allCases[selectedHomeIndex - Self.firstFeatureIndex])
         default: return nil
         }
     }
@@ -371,8 +380,9 @@ struct TerminalMenuModel {
         case 3: return .toggleMirror
         case 4: return nil
         case 5: return .toggleAutoCropScale
-        case 6: return .resetAll
-        case 7...12:
+        case 6: return .toggleAllUIBars
+        case 7: return .resetAll
+        case 8...13:
             let featureID = FeatureID.allCases[selectedHomeIndex - Self.firstFeatureIndex]
             selectedFeature = featureID
             selectedWindowInstanceID = nil
@@ -380,8 +390,8 @@ struct TerminalMenuModel {
             selectedWindowIndex = 0
             selectedFeatureField = .enabled
             return nil
-        case 13: return .toggleGoofyUI
-        case 14: return .quit
+        case 14: return .toggleGoofyUI
+        case 15: return .quit
         default: return nil
         }
     }

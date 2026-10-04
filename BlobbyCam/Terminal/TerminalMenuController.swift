@@ -93,6 +93,8 @@ final class TerminalMenuController {
 
     func dispatch(_ action: TerminalMenuAction) {
         switch action {
+        case .toggleAllUIBars:
+            appState.setAllUIBarsHidden(!appState.allUIBarsHidden)
         case .toggleLive:
             appState.setLive(!appState.isLive)
         case .toggleAll:
@@ -151,6 +153,10 @@ final class TerminalMenuController {
             appState.setFeatureEnabled(!configuration.isEnabled, for: featureID)
         case .freeze:
             appState.setFeatureFrozen(!configuration.isFrozen, for: featureID)
+        case .hideUIBar:
+            if let id = appState.windowIDs(for: featureID).first {
+                appState.setUIBarHidden(!configuration.hidesUIBar, for: id)
+            }
         case .sizeReset:
             break
         case .windowX:
@@ -177,6 +183,8 @@ final class TerminalMenuController {
             appState.setFeatureEnabled(!configuration.isEnabled, for: windowID)
         case .freeze:
             appState.setFeatureFrozen(!configuration.isFrozen, for: windowID)
+        case .hideUIBar:
+            appState.setUIBarHidden(!configuration.hidesUIBar, for: windowID)
         case .sizeReset:
             break
         case .windowX:
