@@ -25,6 +25,8 @@
 
 Repository: https://github.com/kirilldodon2-ux/blobby-cam
 
-Release tag: `v0.1.0-preview.1` (prerelease). Upload the ZIP + matching SHA-256 and verify the real hosted installer with `--no-run` into a project-local test root. Do not claim a clean-Mac launch test from this download check.
+Published: https://github.com/kirilldodon2-ux/blobby-cam/releases/tag/v0.1.0-preview.1
+
+`v0.1.0-preview.1` is marked prerelease. ZIP (2,619,172 bytes) and matching SHA-256 are uploaded. The actual pinned raw-script / GitHub-release downloader was run with `--no-run` into `.build/hosted-preview-install`: checksum passed, installed app executable matched the local Release build. Clean-Mac launch and first-launch approval remain unverified.
 
 Git ignores .build/dist/Xcode user state/credentials. Original local development history and backup commits are retained.
