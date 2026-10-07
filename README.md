@@ -1,6 +1,7 @@
 <div align="center">
   <img src="docs/images/app-icon.png" width="144" alt="Blobby Cam — a rainbow handwritten icon">
   <h1>Blobby Cam</h1>
+  👁️👄👁️
   <p><strong>A few windows. A lot of face.</strong></p>
   <p>Turn your webcam into a tiny desktop creature.<br>Or twenty mouths. That's your business.</p>
   <p><strong>Native macOS · Terminal controls · MIT · Local camera processing</strong></p>
