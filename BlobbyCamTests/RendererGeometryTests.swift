@@ -178,6 +178,45 @@ final class SyphonOutputTests: XCTestCase {
         XCTAssertTrue(cleared, "Lost detection must clear the stream instead of retaining stale pixels")
     }
 
+    func testSimultaneousStreamsNeverExchangePixels() async throws {
+        let device = try XCTUnwrap(MTLCreateSystemDefaultDevice())
+        let renderer = try XCTUnwrap(CoreImageCropRenderer(device: device))
+        let output = SyphonOutput(renderer: renderer)
+        defer { output.stop() }
+        let ids = [FeatureID.leftEye, .rightEye, .mouth].map { WindowInstanceID(featureID: $0, serial: 1) }
+        var configuration = FeatureConfiguration.default
+        configuration.windowSizeOverride = CGSize(width: 32, height: 32)
+        output.configure(enabled: true, configurations: Dictionary(uniqueKeysWithValues: ids.map { ($0, configuration) }))
+        let clients = try ids.map { id in
+            SyphonMetalClient(serverDescription: try XCTUnwrap(output.serverDescription(for: id)),
+                              device: device, options: nil, newFrameHandler: nil)
+        }
+        defer { clients.forEach { $0.stop() } }
+        let colors = [CIColor(red: 1, green: 0, blue: 0), CIColor(red: 0, green: 1, blue: 0), CIColor(red: 0, green: 0, blue: 1)]
+        let bounds = CGRect(x: 0, y: 0, width: 64, height: 64)
+        let images = Dictionary(uniqueKeysWithValues: zip(ids, colors).map { ($0, CIImage(color: $1).cropped(to: bounds)) })
+        for _ in 0..<30 {
+            output.publish(images: images, frames: [:], opacities: [:])
+            try await Task.sleep(nanoseconds: 50_000_000)
+        }
+        for iteration in 0..<60 {
+            output.publish(images: images, frames: [:], opacities: [:])
+            try await Task.sleep(nanoseconds: 20_000_000)
+            for (channel, client) in clients.enumerated() {
+                let texture = try XCTUnwrap(client.newFrameImage())
+                let ci = try XCTUnwrap(CIImage(mtlTexture: texture, options: nil))
+                var bytes = [UInt8](repeating: 0, count: 4)
+                renderer.context.render(ci, toBitmap: &bytes, rowBytes: 4,
+                                        bounds: CGRect(x: 20, y: 20, width: 1, height: 1),
+                                        format: .RGBA8, colorSpace: CGColorSpaceCreateDeviceRGB())
+                XCTAssertGreaterThan(bytes[channel], 240, "Wrong source in stream \(channel), frame \(iteration): \(bytes)")
+                for other in 0..<3 where other != channel {
+                    XCTAssertLessThan(bytes[other], 10, "Stream pixels mixed: \(bytes)")
+                }
+            }
+        }
+    }
+
     func testOutputSizeBoundsExtremeWindowDimensions() {
         var configuration = FeatureConfiguration.default
         configuration.windowSizeOverride = CGSize(width: 8000, height: 4000)

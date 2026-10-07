@@ -2,6 +2,15 @@
 
 Date: 2026-09-26
 
+## 2026-10-07 — first public preview preparation
+
+- User supplied `blobby-cam-icon.icon` and approved MIT publication. Xcode compiles the original Icon Composer source, generates `blobby-cam-icon.icns` and Assets.car, and supplies CFBundleIconFile/CFBundleIconName. Info.plist version: 0.1.0 (build 1).
+- Full gate: **120 passed, 0 failed, 0 skipped**, `.build/DerivedData-Syphon/Logs/Test/Test-BlobbyCam-2026.10.07_22-39-42-+0300.xcresult`. This includes simultaneous red/green/blue streams with three official Metal clients; no pixel exchange in that test. User-reported mixing in Ghost remains unresolved, not certified fixed.
+- Release ZIP: **2.5 MB**, app **5.3 MB** with user icon. Contains app, executable double-click Terminal launcher, local installer, quick start, MIT license and Syphon BSD license.
+- Downloader fixture checks: real packaged app installed under project-local test root; executable hashes match. Incorrect checksum prevents installation. A piped installer inside a real PTY launched a test payload with both stdin and stdout attached to TTY; no camera was started. This protects arrow-key input in `curl | sh` installs.
+- Public repository: `https://github.com/kirilldodon2-ux/blobby-cam`. GitHub CLI authentication works with network access; earlier sandbox-only auth failures did not prove an expired token. Hosted artifact verification is recorded after publication.
+- Preview remains unsigned/not notarized; minimum macOS 14 and Intel are unverified on actual hardware. Camera, display and sustained many-layer checks remain as documented below.
+
 ## 2026-10-04 — optional Syphon output
 
 - Backup checkpoint: `e927b71`; development branch: `dodon/syphon-output`. Syphon defaults OFF and is controlled from existing TUI/Goofy UI. Native window and tracking behavior is preserved.

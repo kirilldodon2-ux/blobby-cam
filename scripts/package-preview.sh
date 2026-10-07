@@ -69,7 +69,36 @@ trap 'exit 129' HUP
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
-if ! ditto -c -k --keepParent "$app" "$stage/$archive_name"; then
+payload="$stage/payload"
+mkdir -p "$payload"
+ditto "$app" "$payload/BlobbyCam.app"
+cp "$project_dir/LICENSE" "$payload/LICENSE"
+cp "$project_dir/BlobbyCam/Resources/Syphon-LICENSE.txt" "$payload/Syphon-LICENSE.txt"
+cp "$project_dir/scripts/install-preview.sh" "$payload/install-preview.sh"
+cat > "$payload/Launch Blobby Cam.command" <<'LAUNCHER'
+#!/bin/sh
+set -eu
+package_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+exec "$package_dir/BlobbyCam.app/Contents/MacOS/BlobbyCam" "$@"
+LAUNCHER
+chmod 755 "$payload/Launch Blobby Cam.command"
+cat > "$payload/START-HERE.txt" <<'GUIDE'
+BLOBBY CAM — a few windows, a lot of face.
+Double-click Launch Blobby Cam.command to open the Terminal menu.
+Allow the camera when macOS asks. LIVE starts automatically.
+Arrow keys select/change. Enter opens windows/settings. Esc goes back.
+QUIT or Ctrl-C exits and restores your Terminal.
+
+This is an unsigned developer preview for Apple silicon (macOS 14+).
+If macOS blocks launch, inspect the download and use its normal
+Privacy & Security approval flow. This package does not disable Gatekeeper.
+
+SYPHON OUTPUT is experimental: a user reported sources mixing/flickering
+in Ghost Arcade. Keep it OFF unless you are trying the experiment.
+Blobby Cam: MIT. Bundled Syphon: BSD (see license files).
+GUIDE
+
+if ! ditto -c -k "$payload" "$stage/$archive_name"; then
     fail "Could not create the preview ZIP. Check that the app build is complete and the disk has space."
 fi
 (

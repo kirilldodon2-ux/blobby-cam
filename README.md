@@ -1,102 +1,132 @@
-# Blobby Cam
+<div align="center">
+  <img src="docs/images/app-icon.png" width="144" alt="Blobby Cam — a rainbow handwritten icon">
+  <h1>Blobby Cam</h1>
+  <p><strong>A few windows. A lot of face.</strong></p>
+  <p>Turn your webcam into a tiny desktop creature.<br>Or twenty mouths. That's your business.</p>
+  <p><strong>Native macOS · Terminal controls · MIT · Local camera processing</strong></p>
+  <p><a href="https://github.com/kirilldodon2-ux/blobby-cam/releases/tag/v0.1.0-preview.1">Download preview</a> · <a href="https://github.com/kirilldodon2-ux/blobby-cam/issues">Share a bug / odd idea</a></p>
+  <p>Made by <a href="https://dodon.one">dodon.one</a></p>
+</div>
 
-Blobby Cam is a native macOS webcam experiment. Apple Vision tracks your left eye, right eye, nose, mouth, and hands. Each live crop appears in its own real macOS window, which you can drag and resize independently.
+![Eyes and a mouth living in separate macOS windows, controlled from an ASCII Terminal menu](docs/images/blobby-cam-live.png)
 
-The primary control surface is an ASCII menu in Terminal. The optional **Goofy UI** shows the same controls in a separate fixed-size window.
+## What is this thing?
 
-## Status
+Blobby Cam tracks your **eyes, nose, mouth, and hands** with Apple Vision and puts each live crop inside a real macOS window. Drag them around. Stretch them. Freeze one. Multiply another. Make something silly.
 
-**Developer preview.** The local Debug and Release builds and automated tests pass on an Apple silicon Mac. A signed, notarized release and one-command GitHub installer are not available yet. See [QA_NOTES.md](QA_NOTES.md) for live checks still required before a public release.
+- **1–32 windows per feature.** New copies inherit the first window's settings; then each can have its own size, crop, position, and freeze.
+- **Live video, steady placement.** Windows stay where you put them by default. AUTO FOLLOW is optional.
+- **Crop your own way.** Zoom to a pupil, widen to an eyebrow, or pan the framing.
+- **Terminal first.** Arrow keys, pink selection, rainbow LIVE. Optional **Goofy UI** for mouse controls.
+- **Hide the chrome.** Remove titlebars globally or on one copy; drag the video and resize the edges.
+- **No uploads or recording.** One camera pipeline, local tracking, shared Core Image / Metal rendering.
 
-## Requirements
+## Get the preview
 
-- macOS 14 or later
-- A webcam and camera permission
-- Full Xcode installed (current development build verified with Xcode 27)
-- Xcode Metal Toolchain for source builds of the bundled Syphon framework
+**0.1.0 preview · Apple silicon · macOS 14+.** The current build is verified on an Apple silicon Mac running macOS 27; macOS 14 and Intel have not been tested. The prebuilt app needs **no Xcode**.
 
-No package manager, web runtime, or account is required. The official BSD-licensed Syphon framework is bundled in the app; users of a packaged app do not need Xcode or Metal Toolchain.
+Download from the [0.1.0 preview release](https://github.com/kirilldodon2-ux/blobby-cam/releases/tag/v0.1.0-preview.1):
 
-## Run locally
+| Download | What you get |
+|---|---|
+| `BlobbyCam-macos-arm64-unsigned.zip` | App, double-click Terminal launcher, installer, licenses |
+| Same filename + `.sha256` | Integrity checksum |
 
-Open Terminal in the project folder and run:
+Unzip the package and double-click **Launch Blobby Cam.command**. Allow camera access when prompted; LIVE starts automatically. To install a downloaded ZIP instead:
 
 ```sh
-./blobby-cam
+sh install-preview.sh /path/to/BlobbyCam-macos-arm64-unsigned.zip
 ```
 
-The script builds the macOS app with Xcode and launches it in the same Terminal session. It may take longer on the first run. If Xcode is installed at a nonstandard location, set `DEVELOPER_DIR` to its `Contents/Developer` directory before running the script.
+Keep the `.sha256` next to the ZIP. Installation creates `~/.local/bin/blobby-cam` and stores the app in `~/.local/share/blobby-cam`. It does not use sudo or change your shell profile. Launch later with:
 
-Blobby Cam requests camera access and starts **LIVE** automatically. The camera frames are processed locally. It does not upload or record video.
+```sh
+~/.local/bin/blobby-cam
+```
 
-## Controls
+### One-command GitHub install
 
-| Key / action | Result |
+Run in your Terminal:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/kirilldodon2-ux/blobby-cam/v0.1.0-preview.1/scripts/install.sh | sh -s -- kirilldodon2-ux/blobby-cam
+```
+
+It downloads the **prebuilt** app, verifies SHA-256, installs, and opens the TUI. No build or Xcode download. The script reattaches input to your Terminal so arrow keys work even after `curl | sh`. To inspect it first, open [install.sh](scripts/install.sh), or download the ZIP manually.
+
+For a previous installation, the installer stops rather than overwriting it. Quit Blobby Cam and move the existing `~/.local/share/blobby-cam/BlobbyCam.app` and `~/.local/bin/blobby-cam` aside before reinstalling.
+
+**Unsigned preview:** macOS may block first launch. Review the downloaded app and use the normal **System Settings → Privacy & Security → Open Anyway** approval if you choose to run it. The installer does not disable Gatekeeper. A signed/notarized release is a future distribution step.
+
+## Play with it
+
+| Action | Result |
 |---|---|
-| ↑ / ↓ | Select a menu row |
-| ← / → | Toggle or adjust the selected value |
+| ↑ / ↓ | Select a row |
+| ← / → | Toggle or adjust |
 | Enter on a feature | Open its window list |
-| ← / → on WINDOWS | Change the number of windows for that feature (1–32) |
-| Enter on a numbered window | Open that window's settings |
-| Enter on ENABLED or FREEZE FRAME | Toggle that window's setting |
-| Esc | Return to the previous menu |
-| QUIT or Ctrl-C | Stop the app and restore Terminal |
-| Drag a feature titlebar | Place that window manually |
-| Drag a feature edge | Resize the window without changing its crop |
-| Close a feature with its red button | Remove that copy; closing the final copy turns it OFF |
+| ← / → on WINDOWS | Add/remove copies (1–32) |
+| Enter on a numbered window | Deep settings for that copy |
+| ENABLED / FREEZE FRAME | Toggle that copy / hold its last crop |
+| Esc | Go back |
+| Drag titlebar; drag an edge | Move; resize |
+| Drag video with HIDE UI BAR on | Move without a titlebar |
+| Red close button | Remove that copy; closing the last one turns it OFF |
+| QUIT / Ctrl-C | Exit and restore Terminal |
 
-**AUTO FOLLOW** defaults to OFF: window positions stay where you put them while their video crops follow your features. **MIRROR** defaults to selfie orientation. **SMOOTHING** defaults to 0, so crop centers follow current detections. **AUTO CROP SCALE** defaults to OFF, keeping facial crop magnification steadier during expressions. Each feature starts with one window and can have up to 32, including a layout of 20 mouths. A new copy starts with the first window's current live image and settings; you can then resize and position every native window independently. Its ON/OFF, FREEZE FRAME, crop zoom/pan/padding, and detection threshold can also be adjusted independently. The eye crop zoom defaults to 0.50×.
+Default mood: **LIVE ON · MIRROR ON · AUTO FOLLOW OFF · AUTO CROP SCALE OFF · SMOOTHING 0**. Eye CROP ZOOM starts at **0.50×**. Window placement and crop framing are separate controls; changing one doesn't replace the other.
 
-**HIDE UI BAR** in either menu hides the native titlebar and traffic-light buttons for all feature windows. The same control in each window's settings changes only that copy. Bars are visible by default; RESET restores them. With a bar hidden, drag the video to move the window; its resizable native style stays enabled. The video size and bottom-left position are preserved when toggling chrome.
+FREEZE FRAME holds one crop while the rest stay live. With LIVE OFF, frozen windows remain visible and ordinary windows hide. SHOW GOOFY UI opens the optional graphical menu.
 
-FREEZE FRAME holds that window's last crop while the others stay live. A frozen window remains visible if LIVE is switched OFF; ordinary feature windows hide. `SHOW GOOFY UI` opens the optional graphical menu.
+## Make your walls weird
 
-## Projector mapping via Syphon
+Try eyes on objects, a mouth on a sculpture, a face assembled across surfaces, or a whole choir of frozen mouths. Compose, mask, warp, and add effects in your projection software; use its output on a projector configured as an **extended display**.
 
-1. Launch Blobby Cam and turn **SYPHON OUTPUT** ON in Terminal or Goofy UI. It defaults to OFF; RESET turns it OFF.
-2. In Ghost Arcade, open **Media Library → SRC → Syphon In**, then **Refresh**.
-3. Select a source such as `Blobby / MOUTH / 1` and use it in a layer. Each enabled Blobby window copy has its own source. Arrange, duplicate, mask, and apply effects in Ghost; send Ghost's output to the projector on your extended display.
+### Experimental Syphon output
 
-Streams contain video only, without native titlebars or window shadows. They reflect each copy's crop, mirror, FREEZE FRAME, and aspect-fill framing. Names use permanent instance serials, so deleting another copy does not rename surviving sources. OFF/closing a copy removes its source; losing detection clears its pixels. HIDE ALL hides local windows while continuing live Syphon output. With LIVE OFF, frozen crops remain available and ordinary crops clear. Turning Syphon OFF stops all senders.
+Blobby Cam can publish each enabled window copy as a separate video source, without titlebars or shadows:
 
-Output follows each window's aspect ratio, up to 1024 pixels on its longest side. GPU output textures are allocated only for connected receivers and reused until dimensions change. Copies share the existing camera/Vision pipeline. Actual Ghost Arcade orientation, reconnect behavior, and performance with many connected layers still require a live check.
+1. Turn **SYPHON OUTPUT** ON in Terminal or Goofy UI (OFF by default).
+2. In Ghost Arcade: **Media Library → SRC → Syphon In → Refresh**.
+3. Select `Blobby / LEFT EYE / 1`, `Blobby / MOUTH / 1`, or another instance, and add it to a layer.
+4. Arrange/effect/warp those layers in Ghost and send its output to the projector.
 
-### Building Syphon from source
+**Known issue:** sources have been reported to mix and flicker in Ghost Arcade. The official Metal client receives three simultaneous sources correctly in an automated test; the cause of the Ghost integration problem is unresolved. This is an experiment, not a verified show-ready output. It stays OFF unless you enable it.
 
-The official source is pinned in `Vendor/Syphon`; provenance and license are recorded alongside it. On Xcode installations without the shader compiler, download Apple's component once:
+Sources use stable instance serials. OFF/closing a copy removes its source; FREEZE holds its crop. HIDE ALL hides local windows while leaving output live. Output preserves each window's aspect-fill framing and is capped at 1024 pixels on its longest side. Connected receivers add GPU work; a sustained many-layer load test is still pending.
+
+## Build your own
+
+Source builds need full Xcode and its Metal Toolchain. No package manager or web runtime is involved. Download Apple's shader compiler once if it is missing:
 
 ```sh
 xcodebuild -downloadComponent MetalToolchain
 ```
 
-The compiler component is about 839 MB on the tested Xcode version. It is a development requirement and is not included in the app ZIP.
-
-## Build and test
+Then, from this repository:
 
 ```sh
-xcodebuild -project BlobbyCam.xcodeproj -scheme BlobbyCam -destination 'platform=macOS' build
-xcodebuild -project BlobbyCam.xcodeproj -scheme BlobbyCam -destination 'platform=macOS' test
+./blobby-cam
 ```
 
-Xcode build output is ignored by Git. The local launcher stores its build under `.build/DerivedData`.
-
-## Small local preview package
-
-The Release app is about 3.7 MB on the tested Mac, and its ZIP is about 1.0 MB. The multi-gigabyte `.build` folder is Xcode's local cache and is not part of the app or Git repository.
+Or double-click the repository's **Launch Blobby Cam.command**. This developer launcher builds before starting; the release launcher runs the prebuilt app directly.
 
 ```sh
+xcodebuild -project BlobbyCam.xcodeproj -scheme BlobbyCam \
+  -destination 'platform=macOS,arch=arm64' test
 ./scripts/package-preview.sh
-./scripts/install-preview.sh
 ```
 
-The first command builds an **unsigned** architecture-specific ZIP containing the `.app` bundle, plus a SHA-256 file, in `dist/`. It prints the app and ZIP sizes; `.build` is not added to the archive. Xcode must be installed and selected with `xcode-select`, or `DEVELOPER_DIR` must point to `Xcode.app/Contents/Developer`.
+Build caches live under `.build`; release archives go into `dist`. Neither is committed. The Apple compiler component (~839 MB in the tested Xcode) is not part of the app download. Package size is printed by the packaging script.
 
-The second command checks the ZIP against its neighboring `.sha256` file, installs the app in `~/.local/share/blobby-cam`, creates `~/.local/bin/blobby-cam`, and starts the Terminal UI. Use `--no-run` to install without launching. You can then launch with `~/.local/bin/blobby-cam`; to type `blobby-cam` from any folder, add `~/.local/bin` to your shell's `PATH` (for zsh, add `export PATH="$HOME/.local/bin:$PATH"` to `~/.zshrc`). If that preview is already installed, remove its app bundle and launcher before installing again. These preview scripts still require Xcode to **build** the package; the installed app does not rebuild on launch.
+## Under the hood
 
-The preview package is for local development. Public downloads need a signed and notarized app, a hosted release, and a verified install command.
+`AVCaptureSession → CVPixelBuffer → Apple Vision → shared Core Image / Metal → persistent NSPanel windows`
 
-## How it works
+Copies reuse one camera and the same tracking results. No per-frame JPEG/PNG/NSImage conversion, separate camera pipeline per feature, backend, or account system. The optional Syphon framework is bundled; its official source/version and BSD license are recorded in [Vendor/Syphon-PROVENANCE.md](Vendor/Syphon-PROVENANCE.md).
 
-One `AVCaptureSession` produces camera frames. Apple Vision finds face landmarks and hand poses. A shared Core Image / Metal-backed renderer crops those frames into six initial, persistent `NSPanel` windows and any copies you add. Copies share the same camera and Vision results. There is no per-frame JPEG/PNG conversion or per-feature camera session.
+## Open project, odd ideas welcome
 
-The [build plan](BLOBBY_CAM_BUILD_PLAN.md), [research handoff](fun-tracking.md), and [TUI ASCII kit](Design/dodon-tui-ascii-kit.md) document the design history. The running app and tests are the reference for current behavior.
+Blobby Cam is **MIT licensed** — use it, fork it, build a strange installation with it. Bundled Syphon remains under its own BSD license. See [LICENSE](LICENSE) and [Syphon license](Vendor/Syphon/License.txt).
+
+When reporting a bug, include macOS/CPU, the control you used, and what you expected. Camera frames stay local; include face screenshots only if you want them public. See [QA notes](QA_NOTES.md) and [release review](RELEASE_REVIEW.md) for verification limits.

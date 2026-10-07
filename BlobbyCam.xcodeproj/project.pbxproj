@@ -70,6 +70,7 @@
         S10000000000000000000003 = {isa = PBXBuildFile; fileRef = S30000000000000000000002; };
         S10000000000000000000004 = {isa = PBXBuildFile; fileRef = S30000000000000000000003; };
         S10000000000000000000005 = {isa = PBXBuildFile; fileRef = S20000000000000000000001; };
+        N10000000000000000000001 /* blobby-cam-icon.icon in Resources */ = {isa = PBXBuildFile; fileRef = N20000000000000000000001; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -145,6 +146,7 @@
         S30000000000000000000001 = {isa = PBXFileReference; lastKnownFileType = wrapper.pb-project; path = Vendor/Syphon/Syphon.xcodeproj; sourceTree = SOURCE_ROOT; };
         S30000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyphonOutput.swift; sourceTree = "<group>"; };
         S30000000000000000000003 = {isa = PBXFileReference; lastKnownFileType = text; path = BlobbyCam/Resources/Syphon-LICENSE.txt; sourceTree = SOURCE_ROOT; };
+        N20000000000000000000001 /* blobby-cam-icon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.icon; path = "blobby-cam-icon.icon"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -231,6 +233,7 @@
 					B10000000000000000000002 /* Info.plist */,
 					B10000000000000000000003 /* BlobbyCam.entitlements */,
 					B10000000000000000000004 /* Assets.xcassets */,
+                    N20000000000000000000001 /* blobby-cam-icon.icon */,
 				);
 			};
 			G10000000000000000000007 /* Camera */ = {
@@ -362,7 +365,7 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-			F10000000000000000000005 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000005 /* Assets.xcassets in Resources */, S10000000000000000000004, ); runOnlyForDeploymentPostprocessing = 0; };
+			F10000000000000000000005 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (N10000000000000000000001 /* blobby-cam-icon.icon in Resources */, A10000000000000000000005 /* Assets.xcassets in Resources */, S10000000000000000000004, ); runOnlyForDeploymentPostprocessing = 0; };
 			F10000000000000000000006 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXResourcesBuildPhase section */
 
@@ -409,7 +412,8 @@
 
 /* Begin XCBuildConfiguration section */
 			J10000000000000000000001 /* Debug app */ = {isa = XCBuildConfiguration; buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = BlobbyCam/Resources/BlobbyCam.entitlements;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "blobby-cam-icon";
+                CODE_SIGN_ENTITLEMENTS = BlobbyCam/Resources/BlobbyCam.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_APP_SANDBOX = NO;
@@ -423,7 +427,8 @@
 				SWIFT_VERSION = 5.0;
 			}; name = Debug; };
 			J10000000000000000000002 /* Release app */ = {isa = XCBuildConfiguration; buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = BlobbyCam/Resources/BlobbyCam.entitlements;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "blobby-cam-icon";
+                CODE_SIGN_ENTITLEMENTS = BlobbyCam/Resources/BlobbyCam.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				ENABLE_APP_SANDBOX = NO;
 				GENERATE_INFOPLIST_FILE = NO;
