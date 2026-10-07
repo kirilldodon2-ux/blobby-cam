@@ -9,7 +9,16 @@
   <p>Made by <a href="https://dodon.one">dodon.one</a></p>
 </div>
 
+## Blobby in motion
+
+https://github.com/user-attachments/assets/073aa124-917c-4ff7-baf0-8048df1d7f65
+
+<details>
+<summary>A still from the little creature</summary>
+
 ![Eyes and a mouth living in separate macOS windows, controlled from an ASCII Terminal menu](docs/images/blobby-cam-live.png)
+
+</details>
 
 ## What is this thing?
 
